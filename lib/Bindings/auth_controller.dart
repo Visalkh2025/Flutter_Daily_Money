@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthController extends GetxController {
-  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> signInFormKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> signUpFormKey = GlobalKey<FormState>();
 
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
@@ -27,28 +27,30 @@ class AuthController extends GetxController {
     isPasswordHidden.value = !isPasswordHidden.value;
   }
 
-  String validateEmail(String? value) {
+  // 🛠️ FIX 1: Return String? and return null
+  String? validateEmail(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter your email';
     }
     if (!GetUtils.isEmail(value)) {
       return 'Please enter a valid email';
     }
-    return '';
+    return null; // ✅ Return null មានន័យថា Valid
   }
 
-  String validatePassword(String? value) {
+  // 🛠️ FIX 1: Return String? and return null
+  String? validatePassword(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter your password';
     }
     if (value.length < 8) {
       return 'Password must be at least 8 characters';
     }
-    return '';
+    return null; // ✅ Return null មានន័យថា Valid
   }
 
   Future<void> signup() async {
-    if (!formKey.currentState!.validate()) {
+    if (!signUpFormKey.currentState!.validate()) {
       return;
     }
     if (!getIscheck.value) {
@@ -60,24 +62,20 @@ class AuthController extends GetxController {
       );
       return;
     }
-    //   //call supabase logic
-    //   print('Sign Up: ${emailController.text}');
-    //   await Future.delayed(Duration(seconds: 2));
-    //   isLoading.value = false;
-    // } finally {
-    //   isLoading.value = false;
-    // }
 
     try {
       isLoading.value = true;
-      //superbase logic here
+      
       final response = await Supabase.instance.client.auth.signUp(
         email: emailController.text.trim(),
         password: passwordController.text,
-        data: {'full_name': usernameController.text},
+        // 🛠️ FIX 3: ត្រូវដាក់ឈ្មោះ Key ឱ្យដូចក្នុង SQL Trigger (display_name)
+        data: {'display_name': usernameController.text.trim()}, 
       );
+      
       if (response.user != null) {
         Get.snackbar("Success", "Welcome ${usernameController.text}!");
+        Get.offAllNamed('/home'); // កុំភ្លេច Navigate ទៅ Home
       }
     } on AuthException catch (e) {
       Get.snackbar(
@@ -97,11 +95,49 @@ class AuthController extends GetxController {
       isLoading.value = false;
     }
   }
+
+  Future<void> signIn() async {
+    if (!signInFormKey.currentState!.validate()) {
+      return;
+    }
+
+    try {
+      isLoading.value = true;
+      
+      final response = await Supabase.instance.client.auth.signInWithPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text,
+      );
+      
+      if (response.user != null) {
+        Get.snackbar("Success", "Welcome back!");
+        Get.offAllNamed('/home'); // Navigate to home
+      }
+    } on AuthException catch (e) {
+      Get.snackbar(
+        "Sign In Failed",
+        e.message,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      Get.snackbar(
+        "Error",
+        "Something went wrong",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // 🛠️ FIX 2: ប្រើ onClose() ជំនួស dispose() សម្រាប់ GetX
   @override
-  void dispose() {
+  void onClose() {
     emailController.dispose();
     passwordController.dispose();
     usernameController.dispose();
-    super.dispose();  
-}
+    super.onClose();  
+  }
 }

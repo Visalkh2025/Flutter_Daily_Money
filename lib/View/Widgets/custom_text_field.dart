@@ -55,6 +55,7 @@ class CustomTextField extends StatelessWidget {
                   ),
                   hintText: hint,
                   hintStyle: GoogleFonts.poppins(color: Colors.grey[400]),
+                  errorStyle: GoogleFonts.poppins(color: Colors.red),
                   border: InputBorder.none,
                   isDense: true,
                   contentPadding: const EdgeInsets.only(top: 4, bottom: 8),

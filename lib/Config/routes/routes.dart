@@ -1,4 +1,6 @@
 
+import 'package:daily_money/Bindings/auth_binding.dart';
+import 'package:daily_money/View/Home/home_screen.dart';
 import 'package:daily_money/View/auth/signin_screen.dart';
 import 'package:daily_money/View/auth/signup_screen.dart';
 import 'package:get/get.dart';
@@ -14,6 +16,7 @@ class Routes {
   static final pages = [
     GetPage(name: signUp, page: () => SignupScreen()),
     GetPage(name: signIn, page: () => SigninScreen()),
+    GetPage(name: home, page: () => HomeScreen()),
    
     
   ];

@@ -1,3 +1,4 @@
+import 'package:daily_money/Bindings/auth_binding.dart';
 import 'package:daily_money/Config/routes/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/route_manager.dart';
@@ -9,7 +10,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: Routes.signIn,
+      initialBinding: AuthBinding(),
+      initialRoute: Routes.signUp,
       getPages: Routes.pages,
     );
   }
