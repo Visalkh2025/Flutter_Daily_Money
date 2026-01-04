@@ -1,10 +1,9 @@
-import 'package:daily_money/Bindings/auth_controller.dart';
+import 'package:daily_money/Controllers/auth_controller.dart';
 import 'package:daily_money/Config/routes/routes.dart';
-import 'package:daily_money/View/Widgets/custom_text_field.dart';
+import 'package:daily_money/View/auth/Widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
-import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class SigninScreen extends StatelessWidget {

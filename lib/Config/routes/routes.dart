@@ -1,8 +1,6 @@
-
-import 'package:daily_money/Bindings/auth_binding.dart';
 import 'package:daily_money/View/Home/home_screen.dart';
-import 'package:daily_money/View/auth/signin_screen.dart';
-import 'package:daily_money/View/auth/signup_screen.dart';
+import 'package:daily_money/View/auth/Screens/signin_screen.dart';
+import 'package:daily_money/View/auth/Screens/signup_screen.dart';
 import 'package:get/get.dart';
 
 class Routes {
@@ -17,7 +15,5 @@ class Routes {
     GetPage(name: signUp, page: () => SignupScreen()),
     GetPage(name: signIn, page: () => SigninScreen()),
     GetPage(name: home, page: () => HomeScreen()),
-   
-    
   ];
 }

@@ -1,3 +1,4 @@
+import 'package:daily_money/Config/routes/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -57,7 +58,7 @@ class AuthController extends GetxController {
       Get.snackbar(
         "Required",
         "Please agree to Terms & Conditions",
-        backgroundColor: Colors.orange,
+        backgroundColor: Colors.black26,
         colorText: Colors.white,
       );
       return;
@@ -81,7 +82,7 @@ class AuthController extends GetxController {
       Get.snackbar(
         "Sign Up Failed",
         e.message,
-        backgroundColor: Colors.red,
+        backgroundColor: Colors.red.withValues(alpha: 0.9),
         colorText: Colors.white,
       );
     } catch (e) {
@@ -132,12 +133,26 @@ class AuthController extends GetxController {
     }
   }
 
-  // 🛠️ FIX 2: ប្រើ onClose() ជំនួស dispose() សម្រាប់ GetX
-  @override
-  void onClose() {
-    emailController.dispose();
-    passwordController.dispose();
-    usernameController.dispose();
-    super.onClose();  
+  Future<void> signOut() async {
+    try {
+      isLoading.value = true;
+      await Supabase.instance.client.auth.signOut();
+      emailController.clear();
+      passwordController.clear();
+      usernameController.clear();
+      Get.offAllNamed(Routes.signIn);
+    } on AuthException catch (e) {
+      Get.snackbar("Sign Out Failed", e.message,
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+      );
+    } catch (e) {
+      Get.snackbar("Error", "Something went wrong during sign out",
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+      );
+    } finally {
+      isLoading.value = false;
+    }
   }
 }

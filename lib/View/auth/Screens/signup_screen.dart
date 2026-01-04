@@ -1,6 +1,6 @@
-import 'package:daily_money/Bindings/auth_controller.dart';
+import 'package:daily_money/Controllers/auth_controller.dart';
 import 'package:daily_money/Config/routes/routes.dart';
-import 'package:daily_money/View/Widgets/custom_text_field.dart';
+import 'package:daily_money/View/auth/Widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -184,8 +184,8 @@ class SignupScreen extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          // Image(image: const AssetImage('assets/icons/google1.png'), width: 30, height: 30),
-                          const Icon(Icons.g_mobiledata, size: 30, color: Colors.blue), // Placeholder icon
+                           Image(image: const AssetImage('assets/icons/google1.png'), width: 30, height: 30),
+                          //const Icon(Icons.g_mobiledata, size: 30, color: Colors.blue), // Placeholder icon
                           const SizedBox(width: 10),
                           Text(
                             "Sign in with Google",

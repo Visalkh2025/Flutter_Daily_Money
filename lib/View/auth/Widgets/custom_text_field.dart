@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class CustomTextField extends StatelessWidget {
+class CustomTextField extends StatefulWidget {
   final String label;
   final String hint;
   final TextEditingController controller;
@@ -9,7 +9,6 @@ class CustomTextField extends StatelessWidget {
   final TextInputType? keyboardType;
   final Widget? suffixIcon;
   final String? Function(String?)? validator;
-
 
   const CustomTextField({
     super.key,
@@ -21,6 +20,13 @@ class CustomTextField extends StatelessWidget {
     this.keyboardType,
     this.suffixIcon,
   });
+
+  @override
+  State<CustomTextField> createState() => _CustomTextFieldState();
+}
+
+class _CustomTextFieldState extends State<CustomTextField> {
+  String? _errorText;
 
   @override
   Widget build(BuildContext context) {
@@ -36,30 +42,43 @@ class CustomTextField extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 8),
+              const SizedBox(height: 0),
               TextFormField(
-                controller: controller,
-                obscureText: obscureText,
-                keyboardType: keyboardType,
-                validator: validator,
+                controller: widget.controller,
+                obscureText: widget.obscureText,
+                keyboardType: widget.keyboardType,
+                validator: (value) {
+                  if (widget.validator != null) {
+                    final error = widget.validator!(value);
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (mounted) {
+                        setState(() {
+                          _errorText = error;
+                        });
+                      }
+                    });
+                  }
+                  return null;
+                },
+                autovalidateMode: AutovalidateMode.onUserInteraction,
                 style: GoogleFonts.poppins(
                   fontSize: 14,
                   color: Colors.black,
                   fontWeight: FontWeight.w500,
                 ),
                 decoration: InputDecoration(
-                  labelText: label,
+                  labelText: widget.label,
                   labelStyle: GoogleFonts.poppins(
                     fontSize: 16,
                     color: Colors.grey[600],
                   ),
-                  hintText: hint,
+                  hintText: widget.hint,
                   hintStyle: GoogleFonts.poppins(color: Colors.grey[400]),
-                  errorStyle: GoogleFonts.poppins(color: Colors.red),
+                  errorStyle: const TextStyle(height: 0),
                   border: InputBorder.none,
                   isDense: true,
                   contentPadding: const EdgeInsets.only(top: 4, bottom: 8),
-                  suffixIcon: suffixIcon,
+                  suffixIcon: widget.suffixIcon,
                   suffixIconConstraints: const BoxConstraints(
                     minWidth: 40,
                     minHeight: 40,
@@ -69,6 +88,17 @@ class CustomTextField extends StatelessWidget {
             ],
           ),
         ),
+        if (_errorText != null)
+          Padding(
+            padding: const EdgeInsets.only(left: 16.0, top: 4.0),
+            child: Text(
+              _errorText!,
+              style: GoogleFonts.poppins(
+                color: Colors.red,
+                fontSize: 12,
+              ),
+            ),
+          ),
       ],
     );
   }
