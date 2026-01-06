@@ -76,7 +76,7 @@ class AuthController extends GetxController {
       
       if (response.user != null) {
         Get.snackbar("Success", "Welcome ${usernameController.text}!");
-        Get.offAllNamed('/home'); // កុំភ្លេច Navigate ទៅ Home
+        Get.offAllNamed(Routes.home); // កុំភ្លេច Navigate ទៅ Home // កុំភ្លេច Navigate ទៅ Home
       }
     } on AuthException catch (e) {
       Get.snackbar(
@@ -112,7 +112,7 @@ class AuthController extends GetxController {
       
       if (response.user != null) {
         Get.snackbar("Success", "Welcome back!");
-        Get.offAllNamed('/home'); // Navigate to home
+        Get.offAllNamed(Routes.home); // កុំភ្លេច Navigate ទៅ Home // Navigate to home
       }
     } on AuthException catch (e) {
       Get.snackbar(
@@ -125,6 +125,25 @@ class AuthController extends GetxController {
       Get.snackbar(
         "Error",
         "Something went wrong",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> signInWithGoogle() async {
+    try {
+      isLoading.value = true;
+      await Supabase.instance.client.auth.signInWithOAuth(
+        OAuthProvider.google,
+        redirectTo: 'io.supabase.flutterquickstart://login-callback/',
+      );
+    } catch (e) {
+      Get.snackbar(
+        "Error",
+        "Something went wrong during Google sign in",
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );

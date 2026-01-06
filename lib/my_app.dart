@@ -1,20 +1,25 @@
-import 'package:daily_money/Bindings/auth_binding.dart';
 import 'package:daily_money/Config/routes/routes.dart';
-import 'package:daily_money/View/Home/home_screen.dart';
+import 'package:daily_money/Controllers/auth_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:get/route_manager.dart';
+import 'package:get/get.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // 🔥 ជំហានសំខាន់: ដាក់ Controller ឱ្យដំណើរការនៅទីនេះ
+    // ដើម្បីឱ្យវាឆែក Session (onReady) ភ្លាមៗពេល App បើក
+    Get.put(AuthController());
+
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      // initialBinding: AuthBinding(),
-      // initialRoute: Routes.signUp,
-      // getPages: Routes.pages,
-      home: HomeScreen(),
+      
+      // ទុក Sign In ជាផ្លូវដំបូងដដែល 
+      // (បើមាន User, AuthController នឹងរុញទៅ Home ដោយស្វ័យប្រវត្តិ)
+      initialRoute: Routes.signIn, 
+      
+      getPages: Routes.pages,
     );
   }
 }

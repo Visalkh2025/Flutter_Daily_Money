@@ -172,7 +172,7 @@ class SigninScreen extends StatelessWidget {
                   height: 55,
                   child: OutlinedButton(
                     onPressed: () {
-                      controller.signIn();
+                      controller.signInWithGoogle();
                     },
                     style: OutlinedButton.styleFrom(
                       side: BorderSide(color: Colors.grey.shade300),

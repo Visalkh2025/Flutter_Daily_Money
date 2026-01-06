@@ -1,5 +1,6 @@
 import 'package:daily_money/Controllers/home_controller.dart';
 import 'package:daily_money/Models/transaction_model.dart';
+import 'package:daily_money/Config/routes/routes.dart';
 import 'package:easy_date_timeline/easy_date_timeline.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -7,7 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
 class HomeScreen extends StatelessWidget {
-  final controller = Get.put(HomeController());
+  final controller = Get.find<HomeController>();
 
   HomeScreen({super.key});
 
@@ -16,11 +17,9 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        // 🔄 ផ្លាស់ប្តូរពី SingleChildScrollView ទៅ CustomScrollView
         child: CustomScrollView(
-          physics: const BouncingScrollPhysics(), // ធ្វើឱ្យ Scroll ទន់ដូច iOS
+          physics: const BouncingScrollPhysics(),
           slivers: [
-            // 1. Header Section (ទុកក្នុង Box Adapter)
             SliverToBoxAdapter(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -31,8 +30,6 @@ class HomeScreen extends StatelessWidget {
                   const SizedBox(height: 25),
                   _buildTimeline(),
                   const SizedBox(height: 25),
-                  
-                  // Transactions Title
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24.0),
                     child: Row(
@@ -48,30 +45,32 @@ class HomeScreen extends StatelessWidget {
                         ),
                         TextButton(
                           onPressed: () {},
-                          child: Text("See All", style: GoogleFonts.poppins(color: Colors.grey)),
+                          child: Text("See All",
+                              style: GoogleFonts.poppins(color: Colors.grey)),
                         )
                       ],
                     ),
                   ),
-                  const SizedBox(height: 10), // Space before list
+                  const SizedBox(height: 10),
                 ],
               ),
             ),
-
-            // 2. Transaction List (🔥 ប្រើ SliverList ជំនួស ListView)
-            _buildSliverTransactionList(),
-
-            // 3. Bottom Spacing (ដើម្បីកុំឱ្យ List ចូលក្រោម BottomBar)
+            Obx(() {
+              if (controller.isLoading.value) {
+                return const SliverFillRemaining(
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              }
+              return _buildSliverTransactionList();
+            }),
             const SliverToBoxAdapter(
               child: SizedBox(height: 80),
             ),
           ],
         ),
       ),
-
-      // --- Floating Action Button ---
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () => Get.toNamed(Routes.addTransaction),
         backgroundColor: Colors.black,
         elevation: 4,
         shape: const CircleBorder(),
@@ -79,8 +78,6 @@ class HomeScreen extends StatelessWidget {
         child: const Icon(Icons.add, color: Colors.white, size: 24),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-
-      // --- Bottom Navigation Bar ---
       bottomNavigationBar: BottomAppBar(
         color: Colors.white,
         surfaceTintColor: Colors.grey[400],
@@ -96,14 +93,15 @@ class HomeScreen extends StatelessWidget {
             _buildNavIcon(Icons.home_filled, true, () {}),
             _buildNavIcon(Icons.pie_chart_outline, false, () {}),
             const SizedBox(width: 48),
-            _buildNavIcon(Icons.account_balance_wallet_outlined, false, () {}),
+            _buildNavIcon(
+                Icons.account_balance_wallet_outlined, false, () {}),
             _buildNavIcon(Icons.person_outline, false, () {}),
           ],
         ),
       ),
     );
   }
-
+  
   // Helper Widget for Nav Icons
   Widget _buildNavIcon(IconData icon, bool isActive, VoidCallback onTap) {
     return IconButton(
@@ -114,13 +112,18 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // ---------------------------------------------------------
-  // 🔥 Sliver Components
-  // ---------------------------------------------------------
-
-  // ប្រើ SliverList ជំនួស ListView
   Widget _buildSliverTransactionList() {
     return Obx(() {
+      if (controller.recentTransactions.isEmpty) {
+        return SliverFillRemaining(
+          child: Center(
+            child: Text(
+              "No transactions yet.",
+              style: GoogleFonts.poppins(color: Colors.grey),
+            ),
+          ),
+        );
+      }
       return SliverPadding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
         sliver: SliverList.separated(
@@ -138,7 +141,8 @@ class HomeScreen extends StatelessWidget {
               child: Row(
                 children: [
                   Container(
-                    height: 48, width: 48,
+                    height: 48,
+                    width: 48,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
@@ -150,8 +154,12 @@ class HomeScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(tx.title, style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 15)),
-                        Text(tx.category, style: GoogleFonts.poppins(color: Colors.grey, fontSize: 12)),
+                        Text(tx.title,
+                            style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w600, fontSize: 15)),
+                        Text(tx.category,
+                            style: GoogleFonts.poppins(
+                                color: Colors.grey, fontSize: 12)),
                       ],
                     ),
                   ),
@@ -163,10 +171,14 @@ class HomeScreen extends StatelessWidget {
                         style: GoogleFonts.poppins(
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
-                          color: tx.type == TransactionType.income ? const Color(0xFF16A34A) : Colors.black,
+                          color: tx.type == TransactionType.income
+                              ? const Color(0xFF16A34A)
+                              : Colors.black,
                         ),
                       ),
-                      Text(DateFormat('hh:mm a').format(tx.date), style: GoogleFonts.poppins(color: Colors.grey, fontSize: 11)),
+                      Text(DateFormat('hh:mm a').format(tx.date),
+                          style: GoogleFonts.poppins(
+                              color: Colors.grey, fontSize: 11)),
                     ],
                   )
                 ],
@@ -177,10 +189,6 @@ class HomeScreen extends StatelessWidget {
       );
     });
   }
-
-  // ---------------------------------------------------------
-  // Standard Widgets (នៅដដែល គ្រាន់តែដាក់ក្នុង SliverToBoxAdapter ខាងលើ)
-  // ---------------------------------------------------------
 
   Widget _buildTimeline() {
     return Padding(
@@ -194,24 +202,34 @@ class HomeScreen extends StatelessWidget {
         ),
         dayProps: EasyDayProps(
           dayStructure: DayStructure.dayStrDayNum,
-          height: 56, width: 56,
+          height: 56,
+          width: 56,
           borderColor: Colors.transparent,
           inactiveDayStyle: DayStyle(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
               color: Colors.grey[100],
             ),
-            dayNumStyle: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-            dayStrStyle: GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
+            dayNumStyle: GoogleFonts.poppins(
+                fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+            dayStrStyle:
+                GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
           ),
           activeDayStyle: DayStyle(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
               color: Colors.black,
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 4))],
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.black.withOpacity(0.3),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4))
+              ],
             ),
-            dayNumStyle: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-            dayStrStyle: GoogleFonts.poppins(fontSize: 12, color: Colors.white70),
+            dayNumStyle: GoogleFonts.poppins(
+                fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+            dayStrStyle:
+                GoogleFonts.poppins(fontSize: 12, color: Colors.white70),
           ),
         ),
       ),
@@ -227,19 +245,25 @@ class HomeScreen extends StatelessWidget {
           Row(
             children: [
               Obx(() => CircleAvatar(
-                radius: 24,
-                backgroundColor: Colors.grey[200],
-                backgroundImage: NetworkImage(controller.profileImage.value),
-              )),
+                    radius: 24,
+                    backgroundColor: Colors.grey[200],
+                    backgroundImage:
+                        NetworkImage(controller.profileImage.value),
+                  )),
               const SizedBox(width: 12),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Good Morning!", style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey[600])),
+                  Text("Good Morning!",
+                      style: GoogleFonts.poppins(
+                          fontSize: 12, color: Colors.grey[600])),
                   Obx(() => Text(
-                    controller.username.value,
-                    style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
-                  )),
+                        controller.username.value,
+                        style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black),
+                      )),
                 ],
               ),
             ],
@@ -251,7 +275,8 @@ class HomeScreen extends StatelessWidget {
             ),
             child: IconButton(
               onPressed: () {},
-              icon: const Icon(Icons.notifications_outlined, color: Colors.black),
+              icon: const Icon(Icons.notifications_outlined,
+                  color: Colors.black),
             ),
           )
         ],
@@ -266,31 +291,44 @@ class HomeScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF1C1C1E),
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 20, offset: const Offset(0, 10))],
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 20,
+              offset: const Offset(0, 10))
+        ],
       ),
       child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Total Balance", style: GoogleFonts.poppins(color: Colors.grey[400], fontSize: 14)),
+              Text("Total Balance",
+                  style:
+                      GoogleFonts.poppins(color: Colors.grey[400], fontSize: 14)),
               Obx(() => GestureDetector(
-                onTap: () => controller.toggleBalanceHide(),
-                child: Icon(
-                  controller.isBalanceHidden.value ? Icons.visibility_off : Icons.visibility,
-                  color: Colors.grey[400],
-                  size: 20,
-                ),
-              )),
+                    onTap: () => controller.toggleBalanceHide(),
+                    child: Icon(
+                      controller.isBalanceHidden.value
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                      color: Colors.grey[400],
+                      size: 20,
+                    ),
+                  )),
             ],
           ),
           const SizedBox(height: 8),
           Obx(() => Text(
-            controller.isBalanceHidden.value
-                ? "••••••••"
-                : NumberFormat.currency(symbol: "\$", decimalDigits: 2).format(controller.totalBalance.value),
-            style: GoogleFonts.poppins(fontSize: 36, fontWeight: FontWeight.bold, color: Colors.white),
-          )),
+                controller.isBalanceHidden.value
+                    ? "••••••••"
+                    : NumberFormat.currency(symbol: "\$", decimalDigits: 2)
+                        .format(controller.totalBalance.value),
+                style: GoogleFonts.poppins(
+                    fontSize: 36,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white),
+              )),
           const SizedBox(height: 24),
           Row(
             children: [
@@ -344,11 +382,18 @@ class HomeScreen extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: GoogleFonts.poppins(color: Colors.grey[400], fontSize: 11)),
+              Text(title,
+                  style: GoogleFonts.poppins(
+                      color: Colors.grey[400], fontSize: 11)),
               Obx(() => Text(
-                controller.isBalanceHidden.value ? "••••" : "\$${amount.toStringAsFixed(0)}",
-                style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14),
-              )),
+                    controller.isBalanceHidden.value
+                        ? "••••"
+                        : "\$${amount.toStringAsFixed(0)}",
+                    style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14),
+                  )),
             ],
           ),
         ],
