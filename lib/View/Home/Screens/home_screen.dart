@@ -1,6 +1,5 @@
 import 'package:daily_money/Controllers/home_controller.dart';
 import 'package:daily_money/Models/transaction_model.dart';
-import 'package:daily_money/Config/routes/routes.dart';
 import 'package:easy_date_timeline/easy_date_timeline.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -69,46 +68,6 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => Get.toNamed(Routes.addTransaction),
-        backgroundColor: Colors.black,
-        elevation: 4,
-        shape: const CircleBorder(),
-        mini: false,
-        child: const Icon(Icons.add, color: Colors.white, size: 24),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: BottomAppBar(
-        color: Colors.white,
-        surfaceTintColor: Colors.grey[400],
-        elevation: 20,
-        shadowColor: Colors.black,
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 8.0,
-        height: 60,
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildNavIcon(Icons.home_filled, true, () {}),
-            _buildNavIcon(Icons.pie_chart_outline, false, () {}),
-            const SizedBox(width: 48),
-            _buildNavIcon(
-                Icons.account_balance_wallet_outlined, false, () {}),
-            _buildNavIcon(Icons.person_outline, false, () {}),
-          ],
-        ),
-      ),
-    );
-  }
-  
-  // Helper Widget for Nav Icons
-  Widget _buildNavIcon(IconData icon, bool isActive, VoidCallback onTap) {
-    return IconButton(
-      onPressed: onTap,
-      icon: Icon(icon, color: isActive ? Colors.black : Colors.grey[400], size: 26),
-      padding: EdgeInsets.zero,
-      visualDensity: VisualDensity.compact,
     );
   }
 
@@ -292,45 +251,36 @@ class HomeScreen extends StatelessWidget {
         color: const Color(0xFF1C1C1E),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
-          BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              blurRadius: 20,
-              offset: const Offset(0, 10))
+          BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 20, offset: const Offset(0, 10)),
         ],
       ),
       child: Column(
         children: [
+          // Total Balance Section
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Total Balance",
-                  style:
-                      GoogleFonts.poppins(color: Colors.grey[400], fontSize: 14)),
+              Text("Total Balance", style: GoogleFonts.poppins(color: Colors.grey[400], fontSize: 14)),
               Obx(() => GestureDetector(
-                    onTap: () => controller.toggleBalanceHide(),
-                    child: Icon(
-                      controller.isBalanceHidden.value
-                          ? Icons.visibility_off
-                          : Icons.visibility,
-                      color: Colors.grey[400],
-                      size: 20,
-                    ),
-                  )),
+                onTap: () => controller.toggleBalanceHide(),
+                child: Icon(
+                  controller.isBalanceHidden.value ? Icons.visibility_off : Icons.visibility,
+                  color: Colors.grey[400],
+                  size: 20,
+                ),
+              )),
             ],
           ),
           const SizedBox(height: 8),
           Obx(() => Text(
-                controller.isBalanceHidden.value
-                    ? "••••••••"
-                    : NumberFormat.currency(symbol: "\$", decimalDigits: 2)
-                        .format(controller.totalBalance.value),
-                style: GoogleFonts.poppins(
-                    fontSize: 36,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white),
-              )),
+            controller.isBalanceHidden.value
+                ? "••••••••"
+                : NumberFormat.currency(symbol: "\$", decimalDigits: 2).format(controller.totalBalance.value),
+            style: GoogleFonts.poppins(fontSize: 36, fontWeight: FontWeight.bold, color: Colors.white),
+          )),
           const SizedBox(height: 24),
-          Row(
+          
+          Obx(() => Row(
             children: [
               Expanded(
                 child: _buildIncomeExpenseBox(
@@ -352,7 +302,7 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
             ],
-          )
+          )),
         ],
       ),
     );
@@ -388,7 +338,8 @@ class HomeScreen extends StatelessWidget {
               Obx(() => Text(
                     controller.isBalanceHidden.value
                         ? "••••"
-                        : "\$${amount.toStringAsFixed(0)}",
+                        : NumberFormat.currency(symbol: "\$", decimalDigits: 2)
+                            .format(amount),
                     style: GoogleFonts.poppins(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,

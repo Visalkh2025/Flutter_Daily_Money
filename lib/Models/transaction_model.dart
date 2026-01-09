@@ -29,23 +29,26 @@ class Transaction {
   factory Transaction.fromJson(Map<String, dynamic> json) {
     // 1. ទាញយក Category មកសិន
     final category = json['category'] ?? 'Uncategorized';
-    
+
     // 2. កំណត់ Type
-    final type = json['type'] == 'expense' 
-        ? TransactionType.expense 
-        : TransactionType.income;
+    final type =
+        json['type'] == 'expense' ? TransactionType.expense : TransactionType.income;
+
+    // 🛠️ FIX: Handle null or empty string for the note.
+    String finalTitle = 'No Note';
+    final note = json['title'] ?? json['note'];
+    if (note != null && (note is String && note.trim().isNotEmpty)) {
+      finalTitle = note;
+    }
 
     return Transaction(
       id: json['id'].toString(),
-      
-      // 🛠️ FIX: យកពី Column 'title' ក្នុង Supabase
-      title: json['title'] ?? json['note'] ?? 'No Note', 
-      
+      title: finalTitle,
       category: category,
       amount: (json['amount'] as num).toDouble(), // ការពារ Error ទាំង int និង double
       date: DateTime.parse(json['date']), // បំប្លែង String ទៅ DateTime
       type: type,
-      
+
       // 🔥 Logic បំប្លែង Category ទៅជា Icon និង Color
       iconData: _getIconForCategory(category),
       color: _getColorForCategory(category, type),

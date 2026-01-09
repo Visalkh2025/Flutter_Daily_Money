@@ -49,6 +49,25 @@ class AuthController extends GetxController {
     }
     return null; // ✅ Return null មានន័យថា Valid
   }
+  @override
+  void onReady() {
+    super.onReady();
+    // 🔥 ហៅមុខងារឆែកមើល Session នៅពេល Controller នេះចាប់ផ្តើមដំណើរការ
+    _checkUserSession();
+  }
+
+  void _checkUserSession() {
+    // 1. សួរទៅ Supabase: "តើមាន User កំពុង Login ទេ?"
+    final user = Supabase.instance.client.auth.currentUser;
+
+    if (user != null) {
+      // ✅ បើមាន -> ទៅ Home Screen ភ្លាម (មិនបាច់ Login ទៀតទេ)
+      // ប្រើ Future.delayed បន្តិច ដើម្បីកុំឱ្យកូដជាន់គ្នាលឿនពេក
+      Future.delayed(const Duration(milliseconds: 500), () {
+        Get.offAllNamed(Routes.main); // ឬ Routes.home តាមឈ្មោះ Route របស់អ្នក
+      });
+    }
+  }
 
   Future<void> signup() async {
     if (!signUpFormKey.currentState!.validate()) {
@@ -76,7 +95,7 @@ class AuthController extends GetxController {
       
       if (response.user != null) {
         Get.snackbar("Success", "Welcome ${usernameController.text}!");
-        Get.offAllNamed(Routes.home); // កុំភ្លេច Navigate ទៅ Home // កុំភ្លេច Navigate ទៅ Home
+        Get.offAllNamed(Routes.main); // កុំភ្លេច Navigate ទៅ Home // កុំភ្លេច Navigate ទៅ Home
       }
     } on AuthException catch (e) {
       Get.snackbar(
@@ -112,7 +131,7 @@ class AuthController extends GetxController {
       
       if (response.user != null) {
         Get.snackbar("Success", "Welcome back!");
-        Get.offAllNamed(Routes.home); // កុំភ្លេច Navigate ទៅ Home // Navigate to home
+        Get.offAllNamed(Routes.main); // កុំភ្លេច Navigate ទៅ Home // Navigate to home
       }
     } on AuthException catch (e) {
       Get.snackbar(

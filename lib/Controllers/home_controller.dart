@@ -5,7 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class HomeController extends GetxController {
   // User Info
-  final username = "Khem Visal".obs;
+  final username = "Khem Visal".obs; // អ្នកអាចទាញពី Profile Table ពេលក្រោយ
   final profileImage = "https://i.pravatar.cc/150?img=12".obs;
 
   // Balance Logic
@@ -14,10 +14,8 @@ class HomeController extends GetxController {
   final monthlyExpense = 0.0.obs;
   final isBalanceHidden = false.obs;
 
-  // Date Picker State
+  // UI State
   final selectedDate = DateTime.now().obs;
-
-  // Transaction List
   final recentTransactions = <Transaction>[].obs;
   final isLoading = false.obs;
 
@@ -31,55 +29,44 @@ class HomeController extends GetxController {
 
   void onDateSelected(DateTime date) {
     selectedDate.value = date;
-    fetchTransactions(); // Fetch transactions for the selected date
+    fetchTransactions();
   }
 
   Future<void> fetchTransactions() async {
     try {
       isLoading.value = true;
       final user = Supabase.instance.client.auth.currentUser;
-      if (user == null) {
-        return;
-      }
+      if (user == null) return;
 
+      // 1. ទាញទិន្នន័យពី Supabase
+      final from = DateTime(
+          selectedDate.value.year, selectedDate.value.month, selectedDate.value.day);
+      final to = from.add(const Duration(days: 1));
       final response = await Supabase.instance.client
           .from('transactions')
           .select()
           .eq('user_id', user.id)
+          .gte('date', from.toIso8601String())
+          .lt('date', to.toIso8601String())
           .order('date', ascending: false);
 
       final data = response as List;
-      recentTransactions.value = data.map((item) {
-        final type = (item['type'] ?? 'expense') == 'expense'
-            ? TransactionType.expense
-            : TransactionType.income;
-        final category = item['category'] as String? ?? 'uncategorized';
-        final iconData = _getIconForCategory(category);
-        final color = _getColorForCategory(category);
 
-        return Transaction(
-          id: item['id']?.toString() ?? '',
-          title: item['note'] as String? ?? 'No note',
-          category: category,
-          amount: (item['amount'] as num?)?.toDouble() ?? 0.0,
-          date: item['date'] != null
-              ? DateTime.parse(item['date'])
-              : DateTime.now(),
-          type: type,
-          iconData: iconData,
-          color: color,
-        );
-      }).toList();
+      // 2. បំប្លែងទៅជា Model (ប្រើកូដថ្មីក្នុង Model)
+      recentTransactions.value = data
+          .map((json) => Transaction.fromJson(json))
+          .toList();
 
+      // 3. គណនាលុយ (Income, Expense, Total)
       _calculateBalance();
+
     } catch (e) {
       print("Error fetching transactions: $e");
       Get.snackbar(
-        "Error",
-        "Failed to fetch transactions. Please check your Supabase Row Level Security policies.",
-        backgroundColor: Colors.redAccent,
-        colorText: Colors.white,
-        duration: const Duration(seconds: 5),
+        "Error", 
+        "Something went wrong while fetching data.",
+        backgroundColor: Colors.redAccent, 
+        colorText: Colors.white
       );
     } finally {
       isLoading.value = false;
@@ -87,8 +74,9 @@ class HomeController extends GetxController {
   }
 
   void _calculateBalance() {
-    double income = 0;
-    double expense = 0;
+    double income = 0.0;
+    double expense = 0.0;
+
     for (var tx in recentTransactions) {
       if (tx.type == TransactionType.income) {
         income += tx.amount;
@@ -96,62 +84,10 @@ class HomeController extends GetxController {
         expense += tx.amount;
       }
     }
+
+    // Update ចូល UI
     monthlyIncome.value = income;
     monthlyExpense.value = expense;
     totalBalance.value = income - expense;
-  }
-
-  IconData _getIconForCategory(String category) {
-    switch (category) {
-      case "Food":
-        return Icons.restaurant;
-      case "Transport":
-        return Icons.directions_car;
-      case "Shopping":
-        return Icons.shopping_bag;
-      case "Bills":
-        return Icons.receipt;
-      case "Fun":
-        return Icons.sports_esports;
-      case "Salary":
-        return Icons.work;
-      case "Freelance":
-        return Icons.code;
-      case "Gift":
-        return Icons.card_giftcard;
-      case "Invest":
-        return Icons.trending_up;
-      case "uncategorized":
-        return Icons.help_outline;
-      default:
-        return Icons.attach_money;
-    }
-  }
-
-  Color _getColorForCategory(String category) {
-    switch (category) {
-      case "Food":
-        return Colors.orange;
-      case "Transport":
-        return Colors.blue;
-      case "Shopping":
-        return Colors.pink;
-      case "Bills":
-        return Colors.red;
-      case "Fun":
-        return Colors.purple;
-      case "Salary":
-        return Colors.green;
-      case "Freelance":
-        return Colors.indigo;
-      case "Gift":
-        return Colors.yellow;
-      case "Invest":
-        return Colors.teal;
-      case "uncategorized":
-        return Colors.grey;
-      default:
-        return Colors.grey;
-    }
   }
 }
