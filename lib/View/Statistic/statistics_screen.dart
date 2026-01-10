@@ -2,7 +2,6 @@ import 'package:daily_money/Controllers/statistics_controller.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
 class StatisticsScreen extends StatefulWidget {
@@ -21,7 +20,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("Statistics", style: GoogleFonts.poppins(color: Colors.black, fontWeight: FontWeight.bold)),
+        title: Text("Statistics", style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.black)),
         backgroundColor: Colors.white,
         centerTitle: true,
         elevation: 0,
@@ -35,13 +34,13 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           padding: const EdgeInsets.all(20),
           child: Column(
             children: [
-              _buildToggle(),
+              _buildToggle(context),
               const SizedBox(height: 20),
-              _buildTimeFilter(),
+              _buildTimeFilter(context),
               const SizedBox(height: 30),
               Text(
                 controller.isExpense.value ? "Spending by Category" : "Income by Category",
-                style: GoogleFonts.poppins(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.black),
               ),
               const SizedBox(height: 20),
               SizedBox(
@@ -65,16 +64,16 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         borderData: FlBorderData(show: false),
                         sectionsSpace: 2,
                         centerSpaceRadius: 60,
-                        sections: _showingPieSections(),
+                        sections: _showingPieSections(context),
                       ),
                     ),
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text("Total", style: GoogleFonts.poppins(color: Colors.grey, fontSize: 14)),
+                        Text("Total", style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey)),
                         Text(
                           NumberFormat.currency(symbol: "\$").format(controller.totalAmount.value),
-                          style: GoogleFonts.poppins(color: Colors.black, fontSize: 24, fontWeight: FontWeight.bold),
+                          style: Theme.of(context).textTheme.displaySmall?.copyWith(color: Colors.black),
                         ),
                       ],
                     )
@@ -82,11 +81,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              _buildIndicators(),
+              _buildIndicators(context),
               const SizedBox(height: 40),
               Align(
                 alignment: Alignment.centerLeft,
-                child: Text("Activity Trend", style: GoogleFonts.poppins(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold)),
+                child: Text("Activity Trend", style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.black)),
               ),
               const SizedBox(height: 20),
               Container(
@@ -114,7 +113,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                               padding: const EdgeInsets.only(top: 8.0),
                               child: Text(
                                 _getBottomTitles(value),
-                                style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey),
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold, color: Colors.grey),
                               ),
                             );
                           },
@@ -134,7 +133,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     );
   }
 
-  Widget _buildToggle() {
+  Widget _buildToggle(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
@@ -143,14 +142,14 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       ),
       child: Row(
         children: [
-          _buildToggleButton("Expense", true),
-          _buildToggleButton("Income", false),
+          _buildToggleButton(context, "Expense", true),
+          _buildToggleButton(context, "Income", false),
         ],
       ),
     );
   }
 
-  Widget _buildToggleButton(String title, bool value) {
+  Widget _buildToggleButton(BuildContext context, String title, bool value) {
     return Expanded(
       child: GestureDetector(
         onTap: () => controller.toggleExpense(value),
@@ -167,7 +166,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             alignment: Alignment.center,
             child: Text(
               title,
-              style: GoogleFonts.poppins(
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: isSelected ? Colors.white : Colors.black,
               ),
@@ -178,7 +177,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     );
   }
 
-  Widget _buildTimeFilter() {
+  Widget _buildTimeFilter(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: controller.periods.map((period) {
@@ -195,7 +194,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               ),
               child: Text(
                 period,
-                style: GoogleFonts.poppins(
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
                   color: isSelected ? Colors.white : Colors.black,
                   fontWeight: FontWeight.bold,
                 ),
@@ -207,7 +206,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     );
   }
 
-  Widget _buildIndicators() {
+  Widget _buildIndicators(BuildContext context) {
     final colors = [Colors.orange, Colors.blue, Colors.purple, Colors.green, Colors.red, Colors.amber, Colors.teal, Colors.indigo];
     final categories = controller.pieChartData.keys.toList();
     if (categories.isEmpty) return const SizedBox.shrink();
@@ -218,6 +217,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       alignment: WrapAlignment.center,
       children: List.generate(categories.length, (index) {
         return _Indicator(
+          context: context,
           color: colors[index % colors.length],
           text: categories[index],
         );
@@ -268,7 +268,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     });
   }
 
-  List<PieChartSectionData> _showingPieSections() {
+  List<PieChartSectionData> _showingPieSections(BuildContext context) {
     final pieData = controller.pieChartData;
     if (pieData.isEmpty) return [];
     
@@ -289,7 +289,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         value: value,
         title: '$percentage%',
         radius: radius,
-        titleStyle: GoogleFonts.poppins(fontSize: fontSize, fontWeight: FontWeight.bold, color: Colors.white),
+        titleStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: fontSize, fontWeight: FontWeight.bold, color: Colors.white),
       );
     });
   }
@@ -298,7 +298,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 class _Indicator extends StatelessWidget {
   final Color color;
   final String text;
-  const _Indicator({required this.color, required this.text});
+  final BuildContext context;
+  const _Indicator({required this.color, required this.text, required this.context});
 
   @override
   Widget build(BuildContext context) {
@@ -307,7 +308,7 @@ class _Indicator extends StatelessWidget {
       children: [
         Container(width: 12, height: 12, decoration: BoxDecoration(shape: BoxShape.circle, color: color)),
         const SizedBox(width: 6),
-        Text(text, style: GoogleFonts.poppins(color: Colors.grey, fontSize: 12)),
+        Text(text, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey)),
       ],
     );
   }

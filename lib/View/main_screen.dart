@@ -1,5 +1,5 @@
 import 'package:daily_money/View/Home/Screens/home_screen.dart';
-import 'package:daily_money/View/Profile/profile_screen.dart';
+import 'package:daily_money/View/Profile/main/profile_screen.dart';
 import 'package:daily_money/View/Statistic/statistics_screen.dart';
 import 'package:daily_money/View/Wallet/wallet_screen.dart';
 import 'package:flutter/material.dart';

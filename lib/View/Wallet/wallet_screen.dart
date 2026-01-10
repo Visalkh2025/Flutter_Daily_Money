@@ -1,7 +1,6 @@
 import 'package:daily_money/Controllers/wallet_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class WalletScreen extends StatelessWidget {
   WalletScreen({super.key});
@@ -15,7 +14,7 @@ class WalletScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Text("My Wallets", style: GoogleFonts.poppins(color: Colors.black, fontWeight: FontWeight.bold)),
+        title: Text("My Wallets", style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.black)),
         centerTitle: true,
         actions: [
           IconButton(
@@ -36,8 +35,8 @@ class WalletScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Total Balance", style: GoogleFonts.poppins(color: Colors.grey, fontSize: 14)),
-                Text("\$4,370.50", style: GoogleFonts.poppins(color: Colors.black, fontSize: 32, fontWeight: FontWeight.bold)),
+                Text("Total Balance", style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey)),
+                Text("\$4,370.50", style: Theme.of(context).textTheme.displayLarge?.copyWith(color: Colors.black)),
               ],
             ),
           ),
@@ -52,7 +51,7 @@ class WalletScreen extends StatelessWidget {
               itemCount: controller.myCards.length,
               itemBuilder: (context, index) {
                 final card = controller.myCards[index];
-                return _buildCreditCard(card);
+                return _buildCreditCard(context, card);
               },
             ),
           ),
@@ -80,7 +79,7 @@ class WalletScreen extends StatelessWidget {
 
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Text("Quick Actions", style: GoogleFonts.poppins(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold)),
+            child: Text("Quick Actions", style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.black)),
           ),
           const SizedBox(height: 20),
           Padding(
@@ -88,10 +87,10 @@ class WalletScreen extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildActionButton(Icons.send, "Transfer"),
-                _buildActionButton(Icons.payments, "Pay Bill"),
-                _buildActionButton(Icons.history, "History"),
-                _buildActionButton(Icons.more_horiz, "More"),
+                _buildActionButton(context, Icons.send, "Transfer"),
+                _buildActionButton(context, Icons.payments, "Pay Bill"),
+                _buildActionButton(context, Icons.history, "History"),
+                _buildActionButton(context, Icons.more_horiz, "More"),
               ],
             ),
           ),
@@ -100,7 +99,7 @@ class WalletScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCreditCard(Map<String, dynamic> card) {
+  Widget _buildCreditCard(BuildContext context, Map<String, dynamic> card) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 10),
       padding: const EdgeInsets.all(24),
@@ -128,7 +127,7 @@ class WalletScreen extends StatelessWidget {
             children: [
               Text(
                 card['name'],
-                style: GoogleFonts.poppins(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white),
               ),
               const Icon(Icons.contactless, color: Colors.white70, size: 28),
             ],
@@ -140,7 +139,7 @@ class WalletScreen extends StatelessWidget {
               const SizedBox(width: 10),
               Text(
                 card['number'],
-                style: GoogleFonts.poppins(color: Colors.white, fontSize: 18, letterSpacing: 2),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white, letterSpacing: 2),
               ),
             ],
           ),
@@ -151,15 +150,15 @@ class WalletScreen extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Balance", style: GoogleFonts.poppins(color: Colors.white70, fontSize: 12)),
-                  Text("\$${card['balance']}", style: GoogleFonts.poppins(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                  Text("Balance", style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white70)),
+                  Text("\$${card['balance']}", style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: Colors.white)),
                 ],
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text("Exp", style: GoogleFonts.poppins(color: Colors.white70, fontSize: 12)),
-                  Text(card['exp'], style: GoogleFonts.poppins(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
+                  Text("Exp", style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white70)),
+                  Text(card['exp'], style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Colors.white)),
                 ],
               ),
             ],
@@ -169,7 +168,7 @@ class WalletScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButton(IconData icon, String label) {
+  Widget _buildActionButton(BuildContext context, IconData icon, String label) {
     return Column(
       children: [
         Container(
@@ -183,7 +182,7 @@ class WalletScreen extends StatelessWidget {
           child: Icon(icon, color: Colors.black, size: 28),
         ),
         const SizedBox(height: 8),
-        Text(label, style: GoogleFonts.poppins(color: Colors.grey, fontSize: 12)),
+        Text(label, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey)),
       ],
     );
   }

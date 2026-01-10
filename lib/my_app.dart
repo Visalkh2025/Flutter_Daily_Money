@@ -1,4 +1,5 @@
 import 'package:daily_money/Config/routes/routes.dart';
+import 'package:daily_money/Config/themes/app_theme.dart';
 import 'package:daily_money/Controllers/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -14,7 +15,7 @@ class MyApp extends StatelessWidget {
 
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      
+      theme: buildAppTheme(),
       // ទុក Sign In ជាផ្លូវដំបូងដដែល 
       // (បើមាន User, AuthController នឹងរុញទៅ Home ដោយស្វ័យប្រវត្តិ)
       initialRoute: Routes.signIn, 

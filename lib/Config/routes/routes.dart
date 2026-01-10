@@ -5,7 +5,7 @@ import 'package:daily_money/Bindings/main_binding.dart';
 import 'package:daily_money/Bindings/statistics_binding.dart';
 import 'package:daily_money/View/Home/Screens/add_transaction_screen.dart';
 import 'package:daily_money/View/Home/Screens/home_screen.dart';
-import 'package:daily_money/View/Profile/profile_screen.dart';
+import 'package:daily_money/View/Profile/main/profile_screen.dart';
 import 'package:daily_money/View/Statistic/statistics_screen.dart';
 import 'package:daily_money/View/Wallet/wallet_screen.dart';
 import 'package:daily_money/View/auth/Screens/signin_screen.dart';

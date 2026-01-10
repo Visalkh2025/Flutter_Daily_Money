@@ -5,4 +5,5 @@ class DefaultCategory {
   final IconData icon;
 
   DefaultCategory({required this.name, required this.icon});
+  
 }

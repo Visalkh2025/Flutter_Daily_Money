@@ -40,7 +40,10 @@ class HomeController extends GetxController {
 
       // 1. ទាញទិន្នន័យពី Supabase
       final from = DateTime(
-          selectedDate.value.year, selectedDate.value.month, selectedDate.value.day);
+        selectedDate.value.year,
+        selectedDate.value.month,
+        selectedDate.value.day,
+      );
       final to = from.add(const Duration(days: 1));
       final response = await Supabase.instance.client
           .from('transactions')
@@ -59,14 +62,13 @@ class HomeController extends GetxController {
 
       // 3. គណនាលុយ (Income, Expense, Total)
       _calculateBalance();
-
     } catch (e) {
       print("Error fetching transactions: $e");
       Get.snackbar(
-        "Error", 
+        "Error",
         "Something went wrong while fetching data.",
-        backgroundColor: Colors.redAccent, 
-        colorText: Colors.white
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
       );
     } finally {
       isLoading.value = false;
@@ -75,6 +77,7 @@ class HomeController extends GetxController {
 
   void _calculateBalance() {
     double income = 0.0;
+
     double expense = 0.0;
 
     for (var tx in recentTransactions) {
@@ -86,8 +89,84 @@ class HomeController extends GetxController {
     }
 
     // Update ចូល UI
+
     monthlyIncome.value = income;
+
     monthlyExpense.value = expense;
+
     totalBalance.value = income - expense;
+  }
+
+  Future<void> deleteTransaction(String transactionId) async {
+    try {
+      await Supabase.instance.client
+          .from('transactions')
+          .delete()
+          .eq('id', transactionId);
+
+      // Remove from local list to avoid re-fetch, for faster UI update
+
+      recentTransactions.removeWhere((tx) => tx.id == transactionId);
+
+      _calculateBalance(); // Recalculate balance after removal
+
+      Get.snackbar(
+        "Success",
+
+        "Transaction deleted successfully.",
+
+        backgroundColor: Colors.green,
+
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      print("Error deleting transaction: $e");
+
+      Get.snackbar(
+        "Error",
+
+        "Something went wrong while deleting transaction.",
+
+        backgroundColor: Colors.redAccent,
+
+        colorText: Colors.white,
+      );
+    }
+  }
+  // នៅក្នុង HomeController
+
+  Future<void> clearAllTransactions() async {
+    try {
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user == null) return;
+
+      // 1. លុបពី Supabase (លុបតែរបស់ User នេះប៉ុណ្ណោះ)
+      await Supabase.instance.client
+          .from('transactions')
+          .delete()
+          .eq('user_id', user.id); // 🔥 សំខាន់ណាស់! ហាមភ្លេច user_id
+
+      // 2. លុបពី List ក្នុង App
+      recentTransactions.clear();
+
+      // 3. Reset លុយឱ្យទៅជា 0.00 ទាំងអស់
+      totalBalance.value = 0.0;
+      monthlyIncome.value = 0.0;
+      monthlyExpense.value = 0.0;
+
+      Get.snackbar(
+        "Success",
+        "All transactions have been deleted",
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      Get.snackbar(
+        "Error",
+        "Failed to clear data: $e",
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
+    }
   }
 }

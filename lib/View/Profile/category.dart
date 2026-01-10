@@ -4,37 +4,57 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-
-class AddCategoryScreen extends StatefulWidget {
+class Category extends StatefulWidget {
   final String? defaultName;
   final IconData? defaultIcon;
+  
+  // 🔥 1. Add this variable to accept the type from the previous screen
+  final bool? isExpense; 
 
-  const AddCategoryScreen({super.key, this.defaultName, this.defaultIcon});
+  const Category({
+    super.key, 
+    this.defaultName, 
+    this.defaultIcon,
+    this.isExpense, // 🔥 2. Add to constructor
+  });
 
   @override
-  State<AddCategoryScreen> createState() => _AddCategoryScreenState();
+  State<Category> createState() => _CategoryState();
 }
 
-class _AddCategoryScreenState extends State<AddCategoryScreen> {
+class _CategoryState extends State<Category> {
   final nameController = TextEditingController();
   final isLoading = false.obs;
 
-  // State for selected options
-  String selectedType = 'expense';
-  IconData selectedIcon = Icons.category;
-  Color selectedColor = Colors.orange;
+  // State
+  String selectedType = 'expense'; // Default fallback
+  IconData selectedIcon = Icons.help_outline; // Changed default to '?' to encourage selection
+  
+  // NOTE: Color is hidden from user, defaulting to White
+  final Color defaultColor = Colors.white;
 
-  // Define a simple class for default categories
+  bool isDefaultLocked = false;
   late final List<DefaultCategory> _defaultCategories;
+
+  final List<IconData> icons = [
+    Icons.fastfood, Icons.restaurant, Icons.local_cafe, Icons.local_bar,
+    Icons.directions_car, Icons.directions_bus, Icons.flight,
+    Icons.shopping_bag, Icons.receipt_long, Icons.credit_card,
+    Icons.person, Icons.medical_services, Icons.fitness_center,
+    Icons.home, Icons.wifi, Icons.lightbulb,
+    Icons.school, Icons.work, Icons.laptop_mac,
+    Icons.movie, Icons.music_note, Icons.pets,
+  ];
 
   @override
   void initState() {
     super.initState();
-    if (widget.defaultName != null) {
-      nameController.text = widget.defaultName!;
-    }
-    if (widget.defaultIcon != null) {
-      selectedIcon = widget.defaultIcon!;
+    if (widget.defaultName != null) nameController.text = widget.defaultName!;
+    if (widget.defaultIcon != null) selectedIcon = widget.defaultIcon!;
+
+    // 🔥 3. Logic to auto-select Expense or Income based on where user came from
+    if (widget.isExpense != null) {
+      selectedType = widget.isExpense! ? 'expense' : 'income';
     }
 
     _defaultCategories = [
@@ -44,63 +64,26 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
       DefaultCategory(name: 'Bills', icon: Icons.receipt_long),
       DefaultCategory(name: 'Entertainment', icon: Icons.movie),
       DefaultCategory(name: 'Health', icon: Icons.medical_services),
-      DefaultCategory(name: 'Education', icon: Icons.school),
       DefaultCategory(name: 'Work', icon: Icons.work),
       DefaultCategory(name: 'Home', icon: Icons.home),
-      DefaultCategory(name: 'Travel', icon: Icons.flight),
-      DefaultCategory(name: 'Gifts', icon: Icons.card_giftcard),
     ];
   }
-
-  // List of available icons
-  final List<IconData> icons = [
-    // Food & Drink
-    Icons.fastfood, Icons.restaurant, Icons.local_cafe, Icons.local_bar,
-    Icons.cake, Icons.local_pizza, Icons.bakery_dining, Icons.icecream,
-
-    // Transport
-    Icons.directions_car, Icons.directions_bus, Icons.directions_bike,
-    Icons.flight, Icons.local_gas_station, Icons.train, Icons.local_taxi,
-
-    // Shopping & Bills
-    Icons.shopping_bag, Icons.shopping_cart, Icons.receipt_long,
-    Icons.credit_card, Icons.account_balance, Icons.attach_money,
-
-    // Personal & Health
-    Icons.person, Icons.medical_services, Icons.fitness_center,
-    Icons.spa, Icons.chair, Icons.content_cut,
-
-    // Home & Utilities
-    Icons.home, Icons.wifi, Icons.lightbulb, Icons.water_drop,
-    Icons.phone_android, Icons.tv, Icons.bed,
-
-    // Education & Work
-    Icons.school, Icons.work, Icons.laptop_mac, Icons.book,
-    Icons.edit, Icons.camera_alt,
-
-    // Entertainment & Others
-    Icons.sports_esports, Icons.movie, Icons.music_note,
-    Icons.pets, Icons.card_giftcard, Icons.celebration, Icons.park,
-  ];
-
-  // List of available colors
-  final List<Color> colors = [
-    Colors.orange,
-    Colors.blue,
-    Colors.pink,
-    Colors.red,
-    Colors.purple,
-    Colors.green,
-    Colors.teal,
-    Colors.brown,
-    Colors.indigo,
-    Colors.cyan,
-  ];
 
   Future<void> saveCategory() async {
     if (nameController.text.trim().isEmpty) {
       Get.snackbar("Required", "Please enter category name");
       return;
+    }
+
+    // Optional: Validation to ensure they picked an icon
+    if (selectedIcon == Icons.help_outline) {
+       Get.snackbar(
+       "Required", 
+       "Please select an icon below",
+       backgroundColor: Colors.orange, 
+       colorText: Colors.white
+     );
+     return;
     }
 
     try {
@@ -113,18 +96,14 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
         'name': nameController.text.trim(),
         'type': selectedType,
         'icon_code': selectedIcon.codePoint,
-        'color_value': selectedColor.value,
+        'color_value': defaultColor.value, 
       });
 
       Get.back(result: true);
-      Get.snackbar(
-        "Success",
-        "Category created successfully!",
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-      );
+      Get.snackbar("Success", "Category created successfully!",
+          backgroundColor: Colors.green, colorText: Colors.white);
     } catch (e) {
-      Get.snackbar("Error", "Failed to add category");
+      Get.snackbar("Error", e.toString());
     } finally {
       isLoading.value = false;
     }
@@ -135,13 +114,8 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFF1C1C1E),
       appBar: AppBar(
-        title: Text(
-          "New Category",
-          style: GoogleFonts.poppins(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        title: Text("New Category",
+            style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold)),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         iconTheme: const IconThemeData(color: Colors.white),
@@ -151,7 +125,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Type Selector (Expense / Income)
+            // Type Selector
             Row(
               children: [
                 _buildTypeButton('Expense', 'expense'),
@@ -162,14 +136,14 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
             const SizedBox(height: 30),
 
             // Name Input
-            Text(
-              "Category Name",
-              style: GoogleFonts.poppins(color: Colors.grey, fontSize: 14),
-            ),
+            Text("Category Name",
+                style: GoogleFonts.poppins(color: Colors.grey, fontSize: 14)),
             const SizedBox(height: 10),
             TextField(
               controller: nameController,
-              style: GoogleFonts.poppins(color: Colors.white),
+              readOnly: isDefaultLocked,
+              style: GoogleFonts.poppins(
+                  color: isDefaultLocked ? Colors.grey : Colors.white),
               decoration: InputDecoration(
                 hintText: "E.g. Bubble Tea",
                 hintStyle: TextStyle(color: Colors.grey[600]),
@@ -179,19 +153,20 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                   borderRadius: BorderRadius.circular(16),
                   borderSide: BorderSide.none,
                 ),
-                prefixIcon: Icon(
-                  selectedIcon,
-                  color: selectedColor,
-                ),
+                prefixIcon: Icon(selectedIcon, color: Colors.white),
+                suffixIcon: isDefaultLocked
+                    ? IconButton(
+                        icon: const Icon(Icons.lock, color: Colors.orange),
+                        onPressed: () => setState(() => isDefaultLocked = false),
+                      )
+                    : null,
               ),
             ),
             const SizedBox(height: 20),
 
-            // Default Category Suggestions
-            Text(
-              "Or choose a default",
-              style: GoogleFonts.poppins(color: Colors.grey, fontSize: 14),
-            ),
+            // Default Suggestions
+            Text("Quick Select",
+                style: GoogleFonts.poppins(color: Colors.grey, fontSize: 14)),
             const SizedBox(height: 10),
             SizedBox(
               height: 50,
@@ -205,6 +180,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                       setState(() {
                         nameController.text = category.name;
                         selectedIcon = category.icon;
+                        isDefaultLocked = true;
                       });
                     },
                     child: Container(
@@ -218,10 +194,8 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                         children: [
                           Icon(category.icon, color: Colors.white, size: 20),
                           const SizedBox(width: 8),
-                          Text(
-                            category.name,
-                            style: GoogleFonts.poppins(color: Colors.white),
-                          ),
+                          Text(category.name,
+                              style: GoogleFonts.poppins(color: Colors.white)),
                         ],
                       ),
                     ),
@@ -231,46 +205,12 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
             ),
             const SizedBox(height: 30),
 
-            // Color Picker
-            Text(
-              "Pick Color",
-              style: GoogleFonts.poppins(color: Colors.grey, fontSize: 14),
-            ),
-            const SizedBox(height: 10),
-            Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              children: colors
-                  .map(
-                    (color) => GestureDetector(
-                      onTap: () => setState(() => selectedColor = color),
-                      child: Container(
-                        width: 45,
-                        height: 45,
-                        decoration: BoxDecoration(
-                          color: color,
-                          shape: BoxShape.circle,
-                          border: selectedColor == color
-                              ? Border.all(color: Colors.white, width: 3)
-                              : null,
-                        ),
-                        child: selectedColor == color
-                            ? const Icon(Icons.check, color: Colors.white)
-                            : null,
-                      ),
-                    ),
-                  )
-                  .toList(),
-            ),
-            const SizedBox(height: 30),
-
             // Icon Picker
-            Text(
-              "Pick Icon",
-              style: GoogleFonts.poppins(color: Colors.grey, fontSize: 14),
-            ),
+            Text("Pick Icon",
+                style: GoogleFonts.poppins(color: Colors.grey, fontSize: 14)),
             const SizedBox(height: 10),
             Container(
+              width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: const Color(0xFF2C2C2E),
@@ -279,36 +219,26 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
               child: Wrap(
                 spacing: 20,
                 runSpacing: 20,
-                alignment: WrapAlignment.center,
-                children: icons
-                    .map(
-                      (icon) => GestureDetector(
-                        onTap: () => setState(() => selectedIcon = icon),
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: selectedIcon == icon
-                                ? selectedColor.withOpacity(0.2)
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(12),
-                            border: selectedIcon == icon
-                                ? Border.all(color: selectedColor, width: 2)
-                                : null,
-                          ),
-                          child: Icon(
-                            icon,
-                            color: selectedIcon == icon
-                                ? selectedColor
-                                : Colors.grey,
-                            size: 30,
-                          ),
-                        ),
-                      ),
-                    )
-                    .toList(),
+                children: icons.map((icon) => GestureDetector(
+                  onTap: () => setState(() => selectedIcon = icon),
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: selectedIcon == icon
+                          ? Colors.white.withOpacity(0.2)
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(12),
+                      border: selectedIcon == icon
+                          ? Border.all(color: Colors.white, width: 2)
+                          : null,
+                    ),
+                    child: Icon(icon,
+                        color: selectedIcon == icon ? Colors.white : Colors.grey,
+                        size: 30),
+                  ),
+                )).toList(),
               ),
             ),
-
             const SizedBox(height: 40),
 
             // Save Button
@@ -321,19 +251,15 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFF27121),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
+                        borderRadius: BorderRadius.circular(16)),
                   ),
                   child: isLoading.value
                       ? const CircularProgressIndicator(color: Colors.white)
-                      : Text(
-                          "Create Category",
+                      : Text("Create Category",
                           style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white)),
                 ),
               ),
             ),
@@ -355,16 +281,12 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                 ? (value == 'expense' ? Colors.redAccent : Colors.green)
                 : const Color(0xFF2C2C2E),
             borderRadius: BorderRadius.circular(16),
-            border: isSelected ? null : Border.all(color: Colors.grey[800]!),
           ),
           alignment: Alignment.center,
-          child: Text(
-            title,
-            style: GoogleFonts.poppins(
-              color: isSelected ? Colors.white : Colors.grey,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          child: Text(title,
+              style: GoogleFonts.poppins(
+                  color: isSelected ? Colors.white : Colors.grey,
+                  fontWeight: FontWeight.bold)),
         ),
       ),
     );

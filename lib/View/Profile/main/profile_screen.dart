@@ -5,7 +5,8 @@ import 'package:daily_money/View/Profile/export_data.dart';
 import 'package:daily_money/View/Profile/help_support.dart';
 import 'package:daily_money/View/Profile/language.dart';
 import 'package:daily_money/View/Profile/notifications.dart';
-import 'package:daily_money/View/Profile/security.dart';
+import 'package:daily_money/View/Profile/privacy_security_screen.dart';
+import 'package:daily_money/View/Profile/remove_category.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -105,23 +106,29 @@ class ProfileScreen extends StatelessWidget {
 
             // 2. Menu Options
             _buildSectionTitle("General"),
-            _buildProfileOption(
-              icon: Icons.currency_exchange,
-              title: "Currency",
-              value: "USD (\$)",
-              onTap: () => Get.to(() => const Currency()),
+            Obx(
+              () => _buildProfileOption(
+                icon: Icons.currency_exchange,
+                title: "Currency",
+                value: controller.currency.value,
+                onTap: () => Get.to(() => const Currency()),
+              ),
             ),
-            _buildProfileOption(
-              icon: Icons.notifications,
-              title: "Notifications",
-              value: "On",
-              onTap: () => Get.to(() => const Notifications()),
+            Obx(
+              () => _buildProfileOption(
+                icon: Icons.notifications,
+                title: "Notifications",
+                value: controller.notificationsEnabled.value ? "On" : "Off",
+                onTap: () => Get.to(() => const Notifications()),
+              ),
             ),
-            _buildProfileOption(
-              icon: Icons.language,
-              title: "Language",
-              value: "English",
-              onTap: () => Get.to(() => const Language()),
+            Obx(
+              () => _buildProfileOption(
+                icon: Icons.language,
+                title: "Language",
+                value: controller.language.value,
+                onTap: () => Get.to(() => const Language()),
+              ),
             ),
 
             const SizedBox(height: 20),
@@ -131,8 +138,11 @@ class ProfileScreen extends StatelessWidget {
               title: "Export Data",
               onTap: () => Get.to(() => const ExportData()),
             ),
-            _buildProfileOption(icon: Icons.lock, title: "Privacy & Security",
-            onTap: () => Get.to(() => const Security()),),
+            _buildProfileOption(
+              icon: Icons.lock,
+              title: "Privacy & Security",
+              onTap: () => Get.to(() => const PrivacySecurityScreen()),
+            ),
             _buildProfileOption(
               icon: Icons.help_outline,
               title: "Help & Support",

@@ -1,38 +1,15 @@
 name: daily_money
 description: "A new Flutter project."
-
-
-publish_to: 'none' 
-
-
-
-
-
-
-
-
-
-
-
-
-
+publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.10.4
-
-
-
-
-
-
+  sdk: '>=3.10.4 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
 
-  
-  
   cupertino_icons: ^1.0.8
   get: ^4.7.3
   google_fonts: ^6.3.3
@@ -42,56 +19,25 @@ dependencies:
   easy_date_timeline: ^2.0.9
   intl: ^0.20.2
   fl_chart: ^1.1.1
-  
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  
-  
-  
-  
-  
   flutter_lints: ^6.0.0
 
 flutter:
   assets:
     - assets/icons/
+    - assets/fonts/
     - .env
-
-  
-  
-  
   uses-material-design: true
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Regular.ttf
+        - asset: assets/fonts/Poppins-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Poppins-Bold.ttf
+          weight: 700
 
-  
-  
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  

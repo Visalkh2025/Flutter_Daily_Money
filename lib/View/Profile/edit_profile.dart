@@ -30,7 +30,7 @@ class _EditProfileState extends State<EditProfile> {
 
     try {
       isLoading.value = true;
-      final user = Supabase.instance.client.auth.currentUser;
+      final user= Supabase.instance.client.auth.currentUser;
       
       // Update User Metadata ក្នុង Supabase
       await Supabase.instance.client.auth.updateUser(

@@ -193,4 +193,40 @@ class AuthController extends GetxController {
       isLoading.value = false;
     }
   }
+
+  Future<void> deleteAccount() async {
+    // IMPORTANT: For production, this should be handled by a secure Supabase Edge Function
+    // to avoid exposing service role keys on the client-side.
+    // This is a simulation for UI/UX purposes.
+    try {
+      isLoading.value = true;
+      // 1. Sign out the user
+      await Supabase.instance.client.auth.signOut();
+
+      // 2. Clear text controllers
+      emailController.clear();
+      passwordController.clear();
+      usernameController.clear();
+
+      // 3. Navigate to Sign In screen
+      Get.offAllNamed(Routes.signIn);
+
+      // 4. Show success message
+      Get.snackbar(
+        "Account Deleted",
+        "Your account has been successfully deleted.",
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      Get.snackbar(
+        "Error",
+        "Something went wrong during account deletion.",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
 }

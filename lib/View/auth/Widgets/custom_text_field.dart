@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class CustomTextField extends StatefulWidget {
   final String label;
@@ -61,19 +60,19 @@ class _CustomTextFieldState extends State<CustomTextField> {
                   return null;
                 },
                 autovalidateMode: AutovalidateMode.onUserInteraction,
-                style: GoogleFonts.poppins(
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontSize: 14,
-                  color: Colors.black,
                   fontWeight: FontWeight.w500,
+                  color: Colors.black,
                 ),
                 decoration: InputDecoration(
                   labelText: widget.label,
-                  labelStyle: GoogleFonts.poppins(
+                  labelStyle: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontSize: 16,
                     color: Colors.grey[600],
                   ),
                   hintText: widget.hint,
-                  hintStyle: GoogleFonts.poppins(color: Colors.grey[400]),
+                  hintStyle: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.grey[400]),
                   errorStyle: const TextStyle(height: 0),
                   border: InputBorder.none,
                   isDense: true,
@@ -93,10 +92,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
             padding: const EdgeInsets.only(left: 16.0, top: 4.0),
             child: Text(
               _errorText!,
-              style: GoogleFonts.poppins(
-                color: Colors.red,
-                fontSize: 12,
-              ),
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.red, fontSize: 12),
             ),
           ),
       ],

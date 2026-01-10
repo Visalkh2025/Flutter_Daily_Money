@@ -27,31 +27,22 @@ class Transaction {
   });
 
   factory Transaction.fromJson(Map<String, dynamic> json) {
-    // 1. ទាញយក Category មកសិន
+    final type = json['type'] == 'expense' ? TransactionType.expense : TransactionType.income;
     final category = json['category'] ?? 'Uncategorized';
-
-    // 2. កំណត់ Type
-    final type =
-        json['type'] == 'expense' ? TransactionType.expense : TransactionType.income;
-
-    // 🛠️ FIX: Handle null or empty string for the note.
-    String finalTitle = 'No Note';
-    final note = json['title'] ?? json['note'];
-    if (note != null && (note is String && note.trim().isNotEmpty)) {
-      finalTitle = note;
-    }
 
     return Transaction(
       id: json['id'].toString(),
-      title: finalTitle,
+      title: json['title'] ?? '', // Default to empty string if null
       category: category,
-      amount: (json['amount'] as num).toDouble(), // ការពារ Error ទាំង int និង double
-      date: DateTime.parse(json['date']), // បំប្លែង String ទៅ DateTime
+      amount: (json['amount'] as num).toDouble(),
+      date: DateTime.parse(json['date']),
       type: type,
-
-      // 🔥 Logic បំប្លែង Category ទៅជា Icon និង Color
-      iconData: _getIconForCategory(category),
-      color: _getColorForCategory(category, type),
+      iconData: json['icon_code'] != null 
+                ? IconData(json['icon_code'], fontFamily: 'MaterialIcons') 
+                : _getIconForCategory(category), // Fallback
+      color: json['color_value'] != null 
+             ? Color(json['color_value']) 
+             : _getColorForCategory(category, type), // Fallback
     );
   }
 
@@ -64,7 +55,7 @@ class Transaction {
       case 'Transport': return Icons.directions_car;
       case 'Shopping': return Icons.shopping_bag;
       case 'Bills': return Icons.receipt_long;
-      case 'Fun': return Icons.movie_filter;
+      case 'Entertainment': return Icons.movie_filter;
       // Income
       case 'Salary': return Icons.account_balance_wallet;
       case 'Freelance': return Icons.laptop_mac;
@@ -87,7 +78,7 @@ class Transaction {
       case 'Transport': return Colors.blueAccent;
       case 'Shopping': return Colors.purpleAccent;
       case 'Bills': return Colors.redAccent;
-      case 'Fun': return Colors.pinkAccent;
+      case 'Entertainment': return Colors.pinkAccent;
       default: return Colors.grey;
     }
   }

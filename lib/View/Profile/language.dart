@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class Language extends StatefulWidget {
   const Language({super.key});
@@ -24,7 +23,7 @@ class _LanguageState extends State<Language> {
     return Scaffold(
       backgroundColor: const Color(0xFF1C1C1E),
       appBar: AppBar(
-        title: Text("Language", style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: Text("Language", style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white)),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         iconTheme: const IconThemeData(color: Colors.white),
@@ -44,7 +43,7 @@ class _LanguageState extends State<Language> {
               Get.snackbar("Language", "Changed to ${lang['name']}", backgroundColor: Colors.green, colorText: Colors.white);
             },
             leading: Text(lang['flag']!, style: const TextStyle(fontSize: 24)),
-            title: Text(lang['name']!, style: GoogleFonts.poppins(color: Colors.white, fontSize: 16)),
+            title: Text(lang['name']!, style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white)),
             trailing: isSelected 
                 ? const Icon(Icons.check_circle, color: Color(0xFFF27121)) 
                 : null,
