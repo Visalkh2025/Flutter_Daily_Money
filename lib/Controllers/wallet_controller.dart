@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class WalletController extends GetxController {
-  // Variable សម្រាប់ដឹងថាគេកំពុងមើលកាតទីប៉ុន្មាន
   final currentCardIndex = 0.obs;
 
-  // Mock Data: ទិន្នន័យកាតធនាគារ ឬកាបូបលុយ
   final myCards = [
     {
       "name": "Main Wallet",

@@ -9,17 +9,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 🔥 ជំហានសំខាន់: ដាក់ Controller ឱ្យដំណើរការនៅទីនេះ
-    // ដើម្បីឱ្យវាឆែក Session (onReady) ភ្លាមៗពេល App បើក
+    // to check user session on app start( on ready immedately)
     Get.put(AuthController());
 
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(),
-      // ទុក Sign In ជាផ្លូវដំបូងដដែល 
-      // (បើមាន User, AuthController នឹងរុញទៅ Home ដោយស្វ័យប្រវត្តិ)
-      initialRoute: Routes.signIn, 
-      
+      initialRoute: Routes.splash,
       getPages: Routes.pages,
     );
   }

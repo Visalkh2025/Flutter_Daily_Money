@@ -5,16 +5,18 @@ import 'package:daily_money/Bindings/main_binding.dart';
 import 'package:daily_money/Bindings/statistics_binding.dart';
 import 'package:daily_money/View/Home/Screens/add_transaction_screen.dart';
 import 'package:daily_money/View/Home/Screens/home_screen.dart';
+import 'package:daily_money/View/Main/splash_screen.dart';
 import 'package:daily_money/View/Profile/main/profile_screen.dart';
 import 'package:daily_money/View/Statistic/statistics_screen.dart';
 import 'package:daily_money/View/Wallet/wallet_screen.dart';
 import 'package:daily_money/View/auth/Screens/signin_screen.dart';
 import 'package:daily_money/View/auth/Screens/signup_screen.dart';
-import 'package:daily_money/View/main_screen.dart';
+import 'package:daily_money/View/Main/main_screen.dart';
 import 'package:get/get.dart';
 
 class Routes {
   static const wallet = '/wallet';
+  static const splash = '/splash';
   static const main = '/main';
   static const signUp = '/signup';
   static const signIn = '/signin';
@@ -24,6 +26,7 @@ class Routes {
   static const statistic = '/statistic';
 
   static final pages = [
+    GetPage(name: splash, page: () => SplashScreen()),
     GetPage(name: signUp, page: () => SignupScreen(), binding: AuthBinding()),
     GetPage(name: signIn, page: () => SigninScreen(), binding: AuthBinding()),
     GetPage(name: main, page: () => const MainScreen(), binding: MainBinding()),

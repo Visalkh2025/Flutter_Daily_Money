@@ -1,5 +1,4 @@
 import 'package:daily_money/Models/category_model.dart';
-import 'package:daily_money/Models/default_category_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -15,8 +14,6 @@ class AddTransactionsController extends GetxController {
   final isExpense = true.obs;
   final isLoading = false.obs;
   final RxList<CategoryModel> categories = RxList<CategoryModel>();
-
-  // 🔥 បន្ថែមថ្មី: សម្រាប់បិទបើក Edit Mode (ដើម្បីលុប Category)
   final isEditing = false.obs;
 
   @override
@@ -25,7 +22,7 @@ class AddTransactionsController extends GetxController {
     fetchCategories();
   }
 
-  // 🔥 Function បិទបើក Edit Mode
+  // Function  Edit Mode
   void toggleEditMode() {
     isEditing.value = !isEditing.value;
   }
@@ -41,7 +38,6 @@ class AddTransactionsController extends GetxController {
           .eq('user_id', user.id);
 
       if (data.isNotEmpty) {
-        // ប្រើ fromMap ឬ fromJson របស់អ្នក
         categories.value = data.map((e) => CategoryModel.fromMap(e)).toList();
         filterCategories();
       }
@@ -92,7 +88,7 @@ class AddTransactionsController extends GetxController {
 
       final double amount = double.parse(amountController.text);
 
-      // 🔥 Logic: "No Note" (ប្រសិនបើទុកចោលទទេ)
+      // "No Note" 
       String noteText = noteController.text.trim().isEmpty 
           ? 'No Note' 
           : noteController.text.trim();
@@ -100,7 +96,7 @@ class AddTransactionsController extends GetxController {
       await Supabase.instance.client.from('transactions').insert({
         'user_id': user.id,
         'amount': amount,
-        'title': noteText, // 👈 ប្រើ noteText ដែលបាន check
+        'title': noteText,
         'category': selectedCategory.value!.name,
         'date': selectDate.value.toIso8601String(),
         'type': isExpense.value ? 'expense' : 'income',
@@ -121,7 +117,7 @@ class AddTransactionsController extends GetxController {
     }
   }
 
-  // 🔥 Delete Category with Safety Check
+  // Delete Category with Safety Check
   Future<void> deleteCategory(int categoryId, String categoryName) async {
     try {
       final user = Supabase.instance.client.auth.currentUser;

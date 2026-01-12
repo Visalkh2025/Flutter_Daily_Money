@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:daily_money/Config/routes/routes.dart';
+import 'package:daily_money/View/auth/Screens/otp_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -13,145 +15,162 @@ class AuthController extends GetxController {
 
   var isRememberMe = false.obs;
   var isPasswordHidden = true.obs;
-  var getIscheck = false.obs;
+  var getIscheck = false.obs; 
   var isLoading = false.obs;
+  
+  // Variables OTP
+  var isVerifying = false.obs;
+  var resendTimer = 60.obs;
+  Timer? _timer;
 
-  void setIscheck(bool? value) {
-    getIscheck.value = value ?? false;
-  }
-
-  void toggleRememberMe() {
-    isRememberMe.value = !isRememberMe.value;
-  }
-
-  void togglePasswordView() {
-    isPasswordHidden.value = !isPasswordHidden.value;
-  }
-
-  // 🛠️ FIX 1: Return String? and return null
-  String? validateEmail(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter your email';
-    }
-    if (!GetUtils.isEmail(value)) {
-      return 'Please enter a valid email';
-    }
-    return null; // ✅ Return null មានន័យថា Valid
-  }
-
-  // 🛠️ FIX 1: Return String? and return null
-  String? validatePassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter your password';
-    }
-    if (value.length < 8) {
-      return 'Password must be at least 8 characters';
-    }
-    return null; // ✅ Return null មានន័យថា Valid
-  }
+  // Lifecycle Methods
   @override
   void onReady() {
     super.onReady();
-    // 🔥 ហៅមុខងារឆែកមើល Session នៅពេល Controller នេះចាប់ផ្តើមដំណើរការ
-    _checkUserSession();
+    checkUserSession();
   }
 
-  void _checkUserSession() {
-    // 1. សួរទៅ Supabase: "តើមាន User កំពុង Login ទេ?"
-    final user = Supabase.instance.client.auth.currentUser;
+  @override
+  void onClose() {
+    _timer?.cancel();
+    super.onClose();
+  }
 
-    if (user != null) {
-      // ✅ បើមាន -> ទៅ Home Screen ភ្លាម (មិនបាច់ Login ទៀតទេ)
-      // ប្រើ Future.delayed បន្តិច ដើម្បីកុំឱ្យកូដជាន់គ្នាលឿនពេក
-      Future.delayed(const Duration(milliseconds: 500), () {
-        Get.offAllNamed(Routes.main); // ឬ Routes.home តាមឈ្មោះ Route របស់អ្នក
-      });
+  // --- Toggles & Helper Methods (រក្សាទុកទាំងអស់) ---
+  void setIscheck(bool? value) => getIscheck.value = value ?? false;
+  void toggleRememberMe() => isRememberMe.value = !isRememberMe.value;
+  void togglePasswordView() => isPasswordHidden.value = !isPasswordHidden.value;
+
+  // --- Validators ---
+  String? validateEmail(String? value) {
+    if (value == null || value.isEmpty) return 'Please enter your email';
+    if (!GetUtils.isEmail(value)) return 'Please enter a valid email';
+    return null;
+  }
+
+  String? validatePassword(String? value) {
+    if (value == null || value.isEmpty) return 'Please enter your password';
+    if (value.length < 6) return 'Password must be at least 6 characters';
+    return null;
+  }
+  // 🔥 1. OTP LOGIC 
+  void startResendTimer() {
+    resendTimer.value = 60;
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (resendTimer.value > 0) {
+        resendTimer.value--;
+      } else {
+        _timer?.cancel();
+      }
+    });
+  }
+  Future<void> verifyOtp(String otpCode) async {
+    if (otpCode.length < 6) return; 
+
+    try {
+      isVerifying.value = true;
+
+      final response = await Supabase.instance.client.auth.verifyOTP(
+        type: OtpType.signup,
+        token: otpCode,
+        email: emailController.text.trim(),
+      );
+
+      if (response.user != null) {
+        Get.offAllNamed(Routes.main);
+        Get.snackbar("Success", "Welcome to Daily Money!");
+      }
+    } on AuthException {
+      Get.snackbar("Invalid Code", "The code is wrong or expired.", backgroundColor: Colors.redAccent, colorText: Colors.white);
+    } catch (e) {
+      Get.snackbar("Error", "Verification failed.", backgroundColor: Colors.redAccent, colorText: Colors.white);
+    } finally {
+      isVerifying.value = false;
     }
   }
+  // Function resend OTP
+  Future<void> resendOtp() async {
+    if (resendTimer.value > 0) return;
+
+    try {
+      await Supabase.instance.client.auth.signInWithOtp(
+        email: emailController.text.trim(),
+      );
+      startResendTimer();
+      Get.snackbar("Sent", "New code sent to your email.");
+    } catch (e) {
+      Get.snackbar("Error", "Could not resend code.");
+    }
+  }
+  // 2. SIGN UP (OTP Screen)
 
   Future<void> signup() async {
-    if (!signUpFormKey.currentState!.validate()) {
-      return;
-    }
-    if (!getIscheck.value) {
+    if (getIscheck.value == false) {
       Get.snackbar(
-        "Required",
-        "Please agree to Terms & Conditions",
-        backgroundColor: Colors.black26,
-        colorText: Colors.white,
+        "Required", 
+        "Please accept the Terms & Conditions to continue.", 
+        backgroundColor: Colors.redAccent, 
+        colorText: Colors.white
       );
-      return;
+      return; 
     }
+
+    // 2. Validate Form (Email/Password)
+    if (!signUpFormKey.currentState!.validate()) return;
 
     try {
       isLoading.value = true;
-      
-      final response = await Supabase.instance.client.auth.signUp(
+      final AuthResponse response = await Supabase.instance.client.auth.signUp(
         email: emailController.text.trim(),
         password: passwordController.text,
-        // 🛠️ FIX 3: ត្រូវដាក់ឈ្មោះ Key ឱ្យដូចក្នុង SQL Trigger (display_name)
-        data: {'display_name': usernameController.text.trim()}, 
+        data: {'full_name': usernameController.text.trim()},
       );
-      
+
       if (response.user != null) {
-        Get.snackbar("Success", "Welcome ${usernameController.text}!");
-        Get.offAllNamed(Routes.main); // កុំភ្លេច Navigate ទៅ Home // កុំភ្លេច Navigate ទៅ Home
+        Get.to(() => const OtpScreen()); 
+        Get.snackbar("Verification", "Code sent! Please check your email.");
       }
+
     } on AuthException catch (e) {
-      Get.snackbar(
-        "Sign Up Failed",
-        e.message,
-        backgroundColor: Colors.red.withValues(alpha: 0.9),
-        colorText: Colors.white,
-      );
+      Get.snackbar("Sign Up Failed", e.message, backgroundColor: Colors.redAccent, colorText: Colors.white);
     } catch (e) {
-      Get.snackbar(
-        "Error",
-        "Something went wrong",
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      Get.snackbar("Error", "Something went wrong", backgroundColor: Colors.redAccent, colorText: Colors.white);
     } finally {
       isLoading.value = false;
     }
   }
-
+  // 3. SIGN IN 
   Future<void> signIn() async {
-    if (!signInFormKey.currentState!.validate()) {
-      return;
-    }
+    if (!signInFormKey.currentState!.validate()) return;
 
     try {
       isLoading.value = true;
-      
+
       final response = await Supabase.instance.client.auth.signInWithPassword(
         email: emailController.text.trim(),
         password: passwordController.text,
       );
-      
+
       if (response.user != null) {
-        Get.snackbar("Success", "Welcome back!");
-        Get.offAllNamed(Routes.main); // កុំភ្លេច Navigate ទៅ Home // Navigate to home
+        Get.offAllNamed(Routes.main);
+        Get.snackbar("Success", "Welcome back!", backgroundColor: Colors.green, colorText: Colors.white);
       }
     } on AuthException catch (e) {
-      Get.snackbar(
-        "Sign In Failed",
-        e.message,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      if (e.message.contains("Email not confirmed")) {
+        Get.to(() => const OtpScreen());
+        Get.snackbar("Activation Required", "Please verify your email first.", backgroundColor: Colors.orange, colorText: Colors.white);
+        resendOtp(); 
+      } else {
+        Get.snackbar("Login Failed", e.message, backgroundColor: Colors.redAccent, colorText: Colors.white);
+      }
     } catch (e) {
-      Get.snackbar(
-        "Error",
-        "Something went wrong",
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      Get.snackbar("Error", "An unexpected error occurred", backgroundColor: Colors.redAccent, colorText: Colors.white);
     } finally {
       isLoading.value = false;
     }
   }
-
+  // 4. GOOGLE SIGN IN (រក្សាទុកដដែល)
   Future<void> signInWithGoogle() async {
     try {
       isLoading.value = true;
@@ -160,73 +179,65 @@ class AuthController extends GetxController {
         redirectTo: 'io.supabase.flutterquickstart://login-callback/',
       );
     } catch (e) {
-      Get.snackbar(
-        "Error",
-        "Something went wrong during Google sign in",
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      Get.snackbar("Error", "Google Sign In Failed", backgroundColor: Colors.redAccent, colorText: Colors.white);
     } finally {
       isLoading.value = false;
     }
   }
-
+  // 5. SIGN OUT (រក្សាទុកដដែល)
   Future<void> signOut() async {
     try {
       isLoading.value = true;
       await Supabase.instance.client.auth.signOut();
+
       emailController.clear();
       passwordController.clear();
       usernameController.clear();
+
       Get.offAllNamed(Routes.signIn);
-    } on AuthException catch (e) {
-      Get.snackbar("Sign Out Failed", e.message,
-      backgroundColor: Colors.red,
-      colorText: Colors.white,
-      );
     } catch (e) {
-      Get.snackbar("Error", "Something went wrong during sign out",
-      backgroundColor: Colors.red,
-      colorText: Colors.white,
-      );
+      Get.snackbar("Error", "Logout failed", backgroundColor: Colors.redAccent, colorText: Colors.white);
     } finally {
       isLoading.value = false;
     }
   }
-
+  // 6. DELETE ACCOUNT (រក្សាទុកដដែល)
   Future<void> deleteAccount() async {
-    // IMPORTANT: For production, this should be handled by a secure Supabase Edge Function
-    // to avoid exposing service role keys on the client-side.
-    // This is a simulation for UI/UX purposes.
     try {
       isLoading.value = true;
-      // 1. Sign out the user
       await Supabase.instance.client.auth.signOut();
 
-      // 2. Clear text controllers
       emailController.clear();
       passwordController.clear();
       usernameController.clear();
 
-      // 3. Navigate to Sign In screen
       Get.offAllNamed(Routes.signIn);
-
-      // 4. Show success message
-      Get.snackbar(
-        "Account Deleted",
-        "Your account has been successfully deleted.",
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-      );
+      Get.snackbar("Deleted", "Account removed locally.", backgroundColor: Colors.grey, colorText: Colors.white);
     } catch (e) {
-      Get.snackbar(
-        "Error",
-        "Something went wrong during account deletion.",
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      Get.snackbar("Error", "Deletion failed", backgroundColor: Colors.redAccent, colorText: Colors.white);
     } finally {
       isLoading.value = false;
     }
   }
+  // 7. CHECK SESSION 
+  // void _checkUserSession() {
+  //   final session = Supabase.instance.client.auth.currentSession;
+  //   if (session != null) {
+  //     Future.delayed(const Duration(milliseconds: 500), () {
+  //       Get.offAllNamed(Routes.main);
+  //     });
+  //   }
+  // }
+
+void checkUserSession() async {
+  await Future.delayed(const Duration(seconds: 2));
+
+  final session = Supabase.instance.client.auth.currentSession;
+  
+  if (session != null) {
+    Get.offAllNamed(Routes.main); 
+  } else {
+    Get.offAllNamed(Routes.signIn);
+  }
+}
 }

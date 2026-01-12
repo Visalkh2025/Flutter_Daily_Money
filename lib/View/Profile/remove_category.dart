@@ -8,7 +8,8 @@ class RemoveCategory extends StatelessWidget {
 
   final controller = Get.find<ProfileController>();
 
-    Widget build(BuildContext context) {
+    @override
+      Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -77,7 +78,7 @@ class RemoveCategory extends StatelessWidget {
             ),
             TextButton(
               child: Text(
-                "Delete", // Fix: Removed extra positional arguments
+                "Delete", 
                 style: GoogleFonts.poppins(color: Colors.redAccent),
               ),
               onPressed: () {

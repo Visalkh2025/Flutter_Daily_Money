@@ -1,6 +1,7 @@
 import 'package:daily_money/Controllers/add_transactions_controller.dart';
-import 'package:daily_money/Models/category_model.dart';
-import 'package:daily_money/View/Profile/category.dart' as category_screen;
+import 'package:daily_money/View/Home/Widgets/add_button.dart';
+import 'package:daily_money/View/Home/Widgets/category_chip.dart';
+import 'package:daily_money/View/Home/Widgets/type_tab.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -47,8 +48,8 @@ class AddTransactionScreen extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  _buildTypeTab("Expense", true),
-                  _buildTypeTab("Income", false),
+                  TypeTab(controller: controller, title: "Expense", isExpenseTab: true),
+                  TypeTab(controller: controller, title: "Income", isExpenseTab: false),
                 ],
               ),
             ),
@@ -105,7 +106,7 @@ class AddTransactionScreen extends StatelessWidget {
 
             // 🔥 Category List with Edit Support
             SizedBox(
-              height: 60, // ដាក់កំពស់ឱ្យរាងធំបន្តិចកុំឱ្យដាច់ក្បាល X
+              height: 60, 
               child: Obx(() {
                 final isExpense = controller.isExpense.value;
                 final filteredCategories = controller.categories
@@ -114,10 +115,10 @@ class AddTransactionScreen extends StatelessWidget {
 
                 return ListView(
                   scrollDirection: Axis.horizontal,
-                  clipBehavior: Clip.none, // អនុញ្ញាតឱ្យប៊ូតុង X លៀនចេញក្រៅបាន
+                  clipBehavior: Clip.none, 
                   children: [
-                    ...filteredCategories.map((cat) => _buildCategoryChip(cat)),
-                    _buildAddButton(),
+                    ...filteredCategories.map((cat) => CategoryChip(controller: controller, category: cat)),
+                    AddButton(controller: controller),
                   ],
                 );
               }),
@@ -191,119 +192,5 @@ class AddTransactionScreen extends StatelessWidget {
       ),
     );
   }
-
-  // --- WIDGETS ---
-
-  Widget _buildTypeTab(String title, bool isExpenseTab) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => controller.toggleType(isExpenseTab),
-        child: Obx(() {
-          bool isSelected = controller.isExpense.value == isExpenseTab;
-          return Container(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            decoration: BoxDecoration(
-              color: isSelected ? const Color(0xFF3A3A3C) : Colors.transparent,
-              borderRadius: BorderRadius.circular(18),
-            ),
-            alignment: Alignment.center,
-            child: Text(title, style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: isSelected ? Colors.white : Colors.grey)),
-          );
-        }),
-      ),
-    );
-  }
-
-  // 🔥 Modified Category Chip with Delete Button (X)
-  Widget _buildCategoryChip(CategoryModel category) {
-    return Obx(() {
-      bool isSelected = controller.selectedCategory.value?.id == category.id;
-      bool isEditing = controller.isEditing.value;
-
-      return Stack(
-        clipBehavior: Clip.none,
-        children: [
-          // The Main Chip
-          GestureDetector(
-            onTap: () {
-              // បើ Edit ហាម Select
-              if (!isEditing) {
-                controller.selectedCategory.value = category;
-              }
-            },
-            child: Container(
-              margin: const EdgeInsets.only(right: 12, top: 8), // Top 8 ទុកកន្លែងឱ្យ X
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: isSelected ? Colors.white : const Color(0xFF2C2C2E),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: isSelected ? Colors.white : Colors.grey[800]!),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(category.icon, color: isSelected ? Colors.black : Colors.white, size: 20),
-                  const SizedBox(width: 8),
-                  Text(category.name, style: GoogleFonts.poppins(color: isSelected ? Colors.black : Colors.white, fontWeight: FontWeight.w500)),
-                ],
-              ),
-            ),
-          ),
-
-          // 🔥 The Delete (X) Button - Only shows when Editing
-          if (isEditing)
-            Positioned(
-              top: 0,
-              right: 5,
-              child: GestureDetector( 
-                onTap: () => controller.deleteCategory(category.id, category.name),
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: const BoxDecoration(
-                    color: Colors.red,
-                    shape: BoxShape.circle,
-                    boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))],
-                  ),
-                  child: const Icon(Icons.close, size: 14, color: Colors.white),
-                ),
-              ),
-            ),
-        ],
-      );
-    });
-  }
-
-  Widget _buildAddButton() {
-    return GestureDetector(
-      onTap: () async {
-        // 🔥 កែត្រង់នេះ៖ បញ្ជូន isExpense: controller.isExpense.value ទៅ
-        final result = await Get.to(() => category_screen.Category(
-          // បើមិនដាក់បន្ទាត់នេះទេ វានឹងជាប់ Expense រហូត!
-          isExpense: controller.isExpense.value, 
-        ));
-
-        if (result == true) {
-          controller.fetchCategories();
-        }
-      },
-      child: Container(
-        // ... (កូដ UI ខាងក្នុងនៅដដែល) ...
-        margin: const EdgeInsets.only(right: 12, top: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey, width: 1),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.add, color: Colors.white, size: 20),
-            const SizedBox(width: 6),
-            Text("Add Item", style: GoogleFonts.poppins(color: Colors.white)),
-          ],
-        ),
-      ),
-    );
-  }
 }
+

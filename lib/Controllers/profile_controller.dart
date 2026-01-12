@@ -1,10 +1,11 @@
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:daily_money/Config/routes/routes.dart'; // Import Routes របស់អ្នក
+import 'package:daily_money/Config/routes/routes.dart'; 
 
 class ProfileController extends GetxController {
   final userEmail = ''.obs;
   final userName = ''.obs;
+  final userAvatarUrl = ''.obs;
   final currency = 'USD (\$)'.obs;
   final language = 'English'.obs;
   final notificationsEnabled = true.obs;
@@ -19,9 +20,11 @@ class ProfileController extends GetxController {
   void fetchUserProfile() {
     final user = Supabase.instance.client.auth.currentUser;
     if (user != null) {
+      userName.value = user.userMetadata?['full_name'] ?? "No Name";
       userEmail.value = user.email ?? "No Email";
-      // ព្យាយាមយកឈ្មោះពី User Metadata (បើមាន) ឬដាក់ឈ្មោះលេងៗសិន
-      userName.value = user.userMetadata?['full_name'] ?? "Khem Visal";
+      
+      
+      userAvatarUrl.value = user.userMetadata?['avatar_url'] ?? "";
     }
   }
 
@@ -35,6 +38,6 @@ class ProfileController extends GetxController {
 
   Future<void> signOut() async {
     await Supabase.instance.client.auth.signOut();
-    Get.offAllNamed(Routes.signIn); // ត្រឡប់ទៅ Login វិញ
+    Get.offAllNamed(Routes.signIn); 
   }
 }

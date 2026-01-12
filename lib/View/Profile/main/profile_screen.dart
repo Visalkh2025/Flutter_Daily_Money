@@ -1,4 +1,5 @@
 import 'package:daily_money/Controllers/profile_controller.dart';
+import 'package:daily_money/View/Profile/Widgets/section_title.dart';
 import 'package:daily_money/View/Profile/currency.dart';
 import 'package:daily_money/View/Profile/edit_profile.dart';
 import 'package:daily_money/View/Profile/export_data.dart';
@@ -6,7 +7,6 @@ import 'package:daily_money/View/Profile/help_support.dart';
 import 'package:daily_money/View/Profile/language.dart';
 import 'package:daily_money/View/Profile/notifications.dart';
 import 'package:daily_money/View/Profile/privacy_security_screen.dart';
-import 'package:daily_money/View/Profile/remove_category.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -19,8 +19,14 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // Changed to white
-      appBar: AppBar(
+      backgroundColor: Colors.white, 
+      appBar: _appbar,
+      body: Column(
+        children: [_header, _logoutbutton],
+      ),
+    );
+  }
+  get _appbar => AppBar(
         title: Text(
           "Profile",
           style: GoogleFonts.poppins(
@@ -32,8 +38,8 @@ class ProfileScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
-      ),
-      body: SingleChildScrollView(
+      );
+  get _header => SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
@@ -50,21 +56,28 @@ class ProfileScreen extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  // Avatar
-                  Container(
-                    width: 70,
-                    height: 70,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
-                    ),
-                    child: const Icon(
-                      Icons.person,
-                      color: Colors.white,
-                      size: 40,
-                    ),
-                  ),
+                  Obx(() {
+                    String avatarUrl = controller.userAvatarUrl.value;
+                    return Container(
+                      width: 70,
+                      height: 70,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
+                        // 🔥 បើមានរូប -> បង្ហាញរូប
+                        image: avatarUrl.isNotEmpty
+                            ? DecorationImage(
+                                image: NetworkImage(avatarUrl),
+                                fit: BoxFit.cover,
+                              )
+                            : null,
+                      ),
+                      child: avatarUrl.isEmpty
+                          ? const Icon(Icons.person, color: Colors.white, size: 40)
+                          : null,
+                    );
+                  }),
                   const SizedBox(width: 20),
                   // User Info
                   Expanded(
@@ -102,10 +115,10 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 30),
+            const SizedBox(height: 24),
 
             // 2. Menu Options
-            _buildSectionTitle("General"),
+            SectionTitle(title: "General"),
             Obx(
               () => _buildProfileOption(
                 icon: Icons.currency_exchange,
@@ -131,8 +144,8 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 20),
-            _buildSectionTitle("Account"),
+            const SizedBox(height: 15),
+            SectionTitle(title: "Account"),
             _buildProfileOption(
               icon: Icons.file_download,
               title: "Export Data",
@@ -149,9 +162,11 @@ class ProfileScreen extends StatelessWidget {
               onTap: () => Get.to(() => const HelpSupport()),
             ),
 
-            const SizedBox(height: 40),
-
-            // 3. Log Out Button
+            const SizedBox(height: 20),
+          ],
+        ),
+      );
+  get _logoutbutton => // 3. Log Out Button
             SizedBox(
               width: double.infinity,
               height: 55,
@@ -174,31 +189,9 @@ class ProfileScreen extends StatelessWidget {
                   ),
                 ),
               ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+            );
 
   // --- Helper Widgets ---
-
-  Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12, left: 4),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: Text(
-          title,
-          style: GoogleFonts.poppins(
-            color: Colors.grey,
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-    );
-  }
 
   Widget _buildProfileOption({
     required IconData icon,

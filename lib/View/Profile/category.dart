@@ -8,14 +8,14 @@ class Category extends StatefulWidget {
   final String? defaultName;
   final IconData? defaultIcon;
   
-  // 🔥 1. Add this variable to accept the type from the previous screen
+  
   final bool? isExpense; 
 
   const Category({
     super.key, 
     this.defaultName, 
     this.defaultIcon,
-    this.isExpense, // 🔥 2. Add to constructor
+    this.isExpense, 
   });
 
   @override
@@ -26,11 +26,11 @@ class _CategoryState extends State<Category> {
   final nameController = TextEditingController();
   final isLoading = false.obs;
 
-  // State
-  String selectedType = 'expense'; // Default fallback
-  IconData selectedIcon = Icons.help_outline; // Changed default to '?' to encourage selection
   
-  // NOTE: Color is hidden from user, defaulting to White
+  String selectedType = 'expense'; 
+  IconData selectedIcon = Icons.help_outline; 
+  
+  
   final Color defaultColor = Colors.white;
 
   bool isDefaultLocked = false;
@@ -52,7 +52,7 @@ class _CategoryState extends State<Category> {
     if (widget.defaultName != null) nameController.text = widget.defaultName!;
     if (widget.defaultIcon != null) selectedIcon = widget.defaultIcon!;
 
-    // 🔥 3. Logic to auto-select Expense or Income based on where user came from
+    
     if (widget.isExpense != null) {
       selectedType = widget.isExpense! ? 'expense' : 'income';
     }
@@ -75,7 +75,7 @@ class _CategoryState extends State<Category> {
       return;
     }
 
-    // Optional: Validation to ensure they picked an icon
+    
     if (selectedIcon == Icons.help_outline) {
        Get.snackbar(
        "Required", 
@@ -125,7 +125,7 @@ class _CategoryState extends State<Category> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Type Selector
+            
             Row(
               children: [
                 _buildTypeButton('Expense', 'expense'),
@@ -135,7 +135,7 @@ class _CategoryState extends State<Category> {
             ),
             const SizedBox(height: 30),
 
-            // Name Input
+            
             Text("Category Name",
                 style: GoogleFonts.poppins(color: Colors.grey, fontSize: 14)),
             const SizedBox(height: 10),
@@ -164,7 +164,7 @@ class _CategoryState extends State<Category> {
             ),
             const SizedBox(height: 20),
 
-            // Default Suggestions
+            
             Text("Quick Select",
                 style: GoogleFonts.poppins(color: Colors.grey, fontSize: 14)),
             const SizedBox(height: 10),
@@ -205,7 +205,7 @@ class _CategoryState extends State<Category> {
             ),
             const SizedBox(height: 30),
 
-            // Icon Picker
+            
             Text("Pick Icon",
                 style: GoogleFonts.poppins(color: Colors.grey, fontSize: 14)),
             const SizedBox(height: 10),
@@ -241,7 +241,7 @@ class _CategoryState extends State<Category> {
             ),
             const SizedBox(height: 40),
 
-            // Save Button
+            
             Obx(
               () => SizedBox(
                 width: double.infinity,

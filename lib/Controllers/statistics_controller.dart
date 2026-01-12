@@ -4,13 +4,11 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
 
 class StatisticsController extends GetxController {
-  // UI State
   final isLoading = false.obs;
   final currentPeriod = "Week".obs;
   final periods = ["Week", "Month", "Year"];
-  final isExpense = true.obs; // To toggle between income and expense view
+  final isExpense = true.obs;
 
-  // Data for Charts
   final barChartData = <double>[].obs;
   final pieChartData = <String, double>{}.obs;
   final totalAmount = 0.0.obs;
@@ -37,7 +35,6 @@ class StatisticsController extends GetxController {
       final user = Supabase.instance.client.auth.currentUser;
       if (user == null) return;
 
-      // 1. Determine Date Range
       final now = DateTime.now();
       DateTime from;
       DateTime to;
@@ -60,7 +57,6 @@ class StatisticsController extends GetxController {
           return;
       }
 
-      // 2. Fetch data from Supabase
       final response = await Supabase.instance.client
           .from('transactions')
           .select()
@@ -70,12 +66,11 @@ class StatisticsController extends GetxController {
           .lt('date', to.toIso8601String())
           .order('date', ascending: true);
 
-      final transactions =
-          (response as List).map((json) => Transaction.fromJson(json)).toList();
+      final transactions = (response as List)
+          .map((json) => Transaction.fromJson(json))
+          .toList();
 
-      // 3. Process Data
       _processChartData(transactions);
-
     } catch (e) {
       Get.snackbar(
         "Error",
@@ -89,25 +84,24 @@ class StatisticsController extends GetxController {
   }
 
   void _processChartData(List<Transaction> transactions) {
-    // Reset previous data
     pieChartData.clear();
     barChartData.clear();
     totalAmount.value = 0.0;
 
-    // Calculate total and category-wise data for Pie Chart
     final newPieData = <String, double>{};
     for (var tx in transactions) {
       totalAmount.value += tx.amount;
-      newPieData.update(tx.category, (value) => value + tx.amount,
-          ifAbsent: () => tx.amount);
+      newPieData.update(
+        tx.category,
+        (value) => value + tx.amount,
+        ifAbsent: () => tx.amount,
+      );
     }
     pieChartData.addAll(newPieData);
 
-    // Group data for Bar Chart
     final newBarData = <double>[];
     switch (currentPeriod.value) {
       case "Week":
-        // Group by day of the week (1-7)
         final dailyTotals = List.filled(7, 0.0);
         for (var tx in transactions) {
           dailyTotals[tx.date.weekday - 1] += tx.amount;
@@ -115,7 +109,6 @@ class StatisticsController extends GetxController {
         newBarData.addAll(dailyTotals);
         break;
       case "Month":
-        // Group by week of the month (4 weeks)
         final weeklyTotals = List.filled(4, 0.0);
         for (var tx in transactions) {
           final weekOfMonth = (tx.date.day / 7).ceil() - 1;
@@ -126,7 +119,6 @@ class StatisticsController extends GetxController {
         newBarData.addAll(weeklyTotals);
         break;
       case "Year":
-         // Group by month of the year (12 months)
         final monthlyTotals = List.filled(12, 0.0);
         for (var tx in transactions) {
           monthlyTotals[tx.date.month - 1] += tx.amount;
