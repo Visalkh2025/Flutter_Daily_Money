@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:daily_money/Controllers/home_controller.dart';
+import 'package:daily_money/Controllers/statistics_controller.dart';
 
 class AddTransactionsController extends GetxController {
   // 1. Variables
@@ -109,6 +110,10 @@ class AddTransactionsController extends GetxController {
 
       if (Get.isRegistered<HomeController>()) {
         Get.find<HomeController>().fetchTransactions();
+      }
+      // Reload statistics if the controller is available
+      if (Get.isRegistered<StatisticsController>()) {
+        Get.find<StatisticsController>().fetchStatistics();
       }
     } catch (e) {
       Get.snackbar("Error", "Something went wrong: $e", backgroundColor: Colors.redAccent, colorText: Colors.white);

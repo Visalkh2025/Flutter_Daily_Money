@@ -53,14 +53,14 @@ class ExportData extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF2C2C2E),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey),
+        border: Border.all(color: Colors.grey.withOpacity(0.2)),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFFF27121),
+              color: const Color(0xFFF27121).withOpacity(0.2),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: const Color(0xFFF27121), size: 28),
@@ -75,7 +75,7 @@ class ExportData extends StatelessWidget {
               ],
             ),
           ),
-          Radio(value: true, activeColor: const Color(0xFFF27121)),
+          Radio(value: true, groupValue: true, onChanged: (v){}, activeColor: const Color(0xFFF27121)),
         ],
       ),
     );

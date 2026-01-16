@@ -112,7 +112,7 @@ class WalletScreen extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: (card['colors'][0] as Color).withOpacity(0.4),
+            color: (card['colors'][0] as Color),
             blurRadius: 16,
             offset: const Offset(0, 8),
           ),

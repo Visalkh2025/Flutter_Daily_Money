@@ -1,3 +1,4 @@
+import 'package:daily_money/Controllers/statistics_controller.dart';
 import 'package:daily_money/Models/transaction_model.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
@@ -104,6 +105,10 @@ class HomeController extends GetxController {
       recentTransactions.removeWhere((tx) => tx.id == transactionId);
       _calculateBalance();
 
+      if (Get.isRegistered<StatisticsController>()) {
+        Get.find<StatisticsController>().fetchStatistics();
+      }
+
       Get.snackbar(
         "Success",
         "Transaction deleted successfully.",
@@ -136,6 +141,10 @@ class HomeController extends GetxController {
       totalBalance.value = 0.0;
       dailyincome.value = 0.0;
       dailyexpense.value = 0.0;
+
+      if (Get.isRegistered<StatisticsController>()) {
+        Get.find<StatisticsController>().fetchStatistics();
+      }
 
       Get.snackbar(
         "Success",

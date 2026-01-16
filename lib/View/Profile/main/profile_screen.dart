@@ -19,14 +19,15 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, 
+      backgroundColor: Colors.white,
       appBar: _appbar,
-      body: Column(
-        children: [_header, _logoutbutton],
-      ),
+      // ✅ ប្រើ _header ផ្ទាល់តែម្ដង (ព្រោះប៊ូតុងនៅក្នុងហ្នឹងហើយ)
+      body: _header, 
     );
   }
-  get _appbar => AppBar(
+
+  // --- AppBar ---
+  PreferredSizeWidget get _appbar => AppBar(
         title: Text(
           "Profile",
           style: GoogleFonts.poppins(
@@ -39,20 +40,19 @@ class ProfileScreen extends StatelessWidget {
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
       );
-  get _header => SingleChildScrollView(
+
+  // --- Main Content (Scrollable) ---
+  Widget get _header => SingleChildScrollView(
+        physics: const BouncingScrollPhysics(), // ដាក់ឱ្យមាន Effect ពេលអូស
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            // 1. Header Card
+            // 1. Header Card (Profile Info)
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                //
                 color: Colors.black87,
                 borderRadius: BorderRadius.circular(24),
-                // boxShadow: [
-                //   BoxShadow(color: const Color(0xFFF27121).withOpacity(0.4), blurRadius: 20, offset: const Offset(0, 10)),
-                // ],
               ),
               child: Row(
                 children: [
@@ -65,7 +65,6 @@ class ProfileScreen extends StatelessWidget {
                         color: Colors.white.withOpacity(0.2),
                         shape: BoxShape.circle,
                         border: Border.all(color: Colors.white, width: 2),
-                        // 🔥 បើមានរូប -> បង្ហាញរូប
                         image: avatarUrl.isNotEmpty
                             ? DecorationImage(
                                 image: NetworkImage(avatarUrl),
@@ -162,37 +161,42 @@ class ProfileScreen extends StatelessWidget {
               onTap: () => Get.to(() => const HelpSupport()),
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 30), // ទុកឃ្លាតពីម៉ឺនុយបន្តិច
+
+            // 3. Log Out Button (🔥 ដាក់ចូលក្នុងនេះ ដើម្បី Scroll បាន)
+            _logoutbutton,
+
+            const SizedBox(height: 20), // ទុកឃ្លាតខាងក្រោមបន្តិច
           ],
         ),
       );
-  get _logoutbutton => // 3. Log Out Button
-            SizedBox(
-              width: double.infinity,
-              height: 55,
-              child: ElevatedButton(
-                onPressed: controller.signOut,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.redAccent,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  side: const BorderSide(color: Colors.redAccent, width: 1),
-                  elevation: 0,
-                ),
-                child: Text(
-                  "Log Out",
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            );
 
-  // --- Helper Widgets ---
+  // --- Log Out Button Widget ---
+  Widget get _logoutbutton => SizedBox(
+        width: double.infinity,
+        height: 55,
+        child: ElevatedButton(
+          onPressed: controller.signOut,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.redAccent,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            side: const BorderSide(color: Colors.redAccent, width: 1),
+            elevation: 0,
+          ),
+          child: Text(
+            "Log Out",
+            style: GoogleFonts.poppins(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      );
 
+  // --- Helper Widget for Menu Item ---
   Widget _buildProfileOption({
     required IconData icon,
     required String title,
@@ -209,7 +213,7 @@ class ProfileScreen extends StatelessWidget {
         onTap: onTap,
         leading: Container(
           padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: Colors.white,
             shape: BoxShape.circle,
           ),
