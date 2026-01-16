@@ -43,9 +43,13 @@ lib/
 
 ## Screenshots
 
-| Splash Screen | Home Screen | Statistics |
+| Splash Screen | Home Screen | Statistics | Profile |
 | :---: | :---: | :---: |
-| ![Splash Screen](https://via.placeholder.com/300x600.png?text=Splash+Screen) | ![Home Screen](https://via.placeholder.com/300x600.png?text=Home+Screen) | ![Statistics](https://via.placeholder.com/300x600.png?text=Statistics) |
+| ![Splash Screen]<img width="72" height="150" alt="Simulator Screenshot - iPhone 16e - 2026-01-16 at 17 18 43" src="https://github.com/user-attachments/assets/2a4522cf-a303-48cb-b9dc-048b84049da4" />
+| ![Home Screen]<img width="72" height="150" alt="Simulator Screenshot - iPhone 16e - 2026-01-16 at 17 19 40" src="https://github.com/user-attachments/assets/d57b6908-33c3-4a79-bf9d-9b5c0ef49463" />
+| ![Statistics]<img width="72" height="150" alt="Simulator Screenshot - iPhone 16e - 2026-01-16 at 17 22 35" src="https://github.com/user-attachments/assets/8b15505a-6bb0-4181-b475-7ad8c937e27c" />
+| <img width="72" height="150" alt="Simulator Screenshot - iPhone 16e - 2026-01-16 at 17 19 54" src="https://github.com/user-attachments/assets/ae2e045f-a779-4b63-b31a-83c24e1eb46c" />
+
 
 
 ## Getting Started
