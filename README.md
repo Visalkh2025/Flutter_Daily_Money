@@ -41,14 +41,16 @@ lib/
 └───my_app.dart    # Root widget
 ```
 
-## Screenshots
+## Screenshots & Video MockUp
 
-| Splash Screen | Home Screen | Statistics | Profile |
-| :---: | :---: | :---: |
-| ![Splash Screen]<img width="72" height="150" alt="Simulator Screenshot - iPhone 16e - 2026-01-16 at 17 18 43" src="https://github.com/user-attachments/assets/2a4522cf-a303-48cb-b9dc-048b84049da4" />
-| ![Home Screen]<img width="72" height="150" alt="Simulator Screenshot - iPhone 16e - 2026-01-16 at 17 19 40" src="https://github.com/user-attachments/assets/d57b6908-33c3-4a79-bf9d-9b5c0ef49463" />
-| ![Statistics]<img width="72" height="150" alt="Simulator Screenshot - iPhone 16e - 2026-01-16 at 17 22 35" src="https://github.com/user-attachments/assets/8b15505a-6bb0-4181-b475-7ad8c937e27c" />
-| <img width="72" height="150" alt="Simulator Screenshot - iPhone 16e - 2026-01-16 at 17 19 54" src="https://github.com/user-attachments/assets/ae2e045f-a779-4b63-b31a-83c24e1eb46c" />
+| | | | | |
+|:---:|:---:|:---:|:---:|:---:|
+| <img src="https://github.com/user-attachments/assets/2a4522cf-a303-48cb-b9dc-048b84049da4" width="200" /> | <img src="https://github.com/user-attachments/assets/d57b6908-33c3-4a79-bf9d-9b5c0ef49463" width="200" /> | <img src="https://github.com/user-attachments/assets/8b15505a-6bb0-4181-b475-7ad8c937e27c" width="200" /> | <img src="https://github.com/user-attachments/assets/ae2e045f-a779-4b63-b31a-83c24e1eb46c" width="200" /> | <img src="https://github.com/user-attachments/assets/7a59c6e8-af6f-4ba7-a16f-95172a01a969" width="200" /> |
+| <sub>Splash Screen</sub> | <sub>Home Screen</sub> | <sub>Statistics</sub> | <sub>Profile</sub> | <sub>Card</sub> |
+
+
+
+https://github.com/user-attachments/assets/a8b69fd0-297f-4e60-a7c8-3dedb61b8165
 
 
 
